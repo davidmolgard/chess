@@ -68,7 +68,7 @@ public class BishopMoveTests {
         //check
         Set<ChessMove> pieceMoves = new HashSet<>(bishop.pieceMoves(board, position));
         Assertions.assertEquals(validMoves, pieceMoves,
-                "ChessPiece pieceMoves did not return the correct moves");
+                "chess.ChessPiece pieceMoves did not return the correct moves");
     }
 
 
@@ -141,7 +141,7 @@ public class BishopMoveTests {
 
         //check
         Assertions.assertEquals(validMoves, pieceMoves,
-                "ChessPiece pieceMoves did not return the correct moves");
+                "chess.ChessPiece pieceMoves did not return the correct moves");
     }
 
 
@@ -172,7 +172,7 @@ public class BishopMoveTests {
 
         //make sure move list is empty
         Assertions.assertTrue(bishop.pieceMoves(board, position).isEmpty(),
-                "ChessPiece pieceMoves returned valid moves for a trapped piece");
+                "chess.ChessPiece pieceMoves returned valid moves for a trapped piece");
     }
 
 }

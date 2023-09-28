@@ -54,7 +54,7 @@ public class KnightMoveTests {
 
         Set<ChessMove> pieceMoves = new HashSet<>(knight.pieceMoves(board, position));
         Assertions.assertEquals(validMoves, pieceMoves,
-                "ChessPiece pieceMoves did not return the correct moves");
+                "chess.ChessPiece pieceMoves did not return the correct moves");
 
         //black
         /*
@@ -73,7 +73,7 @@ public class KnightMoveTests {
 
         pieceMoves = new HashSet<>(knight.pieceMoves(board, position));
         Assertions.assertEquals(validMoves, pieceMoves,
-                "ChessPiece pieceMoves did not return the correct moves");
+                "chess.ChessPiece pieceMoves did not return the correct moves");
     }
 
 
@@ -103,7 +103,7 @@ public class KnightMoveTests {
 
         Set<ChessMove> pieceMoves = new HashSet<>(knight.pieceMoves(board, position));
         Assertions.assertEquals(validMoves, pieceMoves,
-                "ChessPiece pieceMoves did not return the correct moves");
+                "chess.ChessPiece pieceMoves did not return the correct moves");
 
 
         //right
@@ -131,7 +131,7 @@ public class KnightMoveTests {
 
         pieceMoves = new HashSet<>(knight.pieceMoves(board, position));
         Assertions.assertEquals(validMoves, pieceMoves,
-                "ChessPiece pieceMoves did not return the correct moves");
+                "chess.ChessPiece pieceMoves did not return the correct moves");
 
 
         //bottom
@@ -159,7 +159,7 @@ public class KnightMoveTests {
 
         pieceMoves = new HashSet<>(knight.pieceMoves(board, position));
         Assertions.assertEquals(validMoves, pieceMoves,
-                "ChessPiece pieceMoves did not return the correct moves");
+                "chess.ChessPiece pieceMoves did not return the correct moves");
 
 
         //top
@@ -187,7 +187,7 @@ public class KnightMoveTests {
 
         pieceMoves = new HashSet<>(knight.pieceMoves(board, position));
         Assertions.assertEquals(validMoves, pieceMoves,
-                "ChessPiece pieceMoves did not return the correct moves");
+                "chess.ChessPiece pieceMoves did not return the correct moves");
     }
 
 
@@ -215,7 +215,7 @@ public class KnightMoveTests {
 
         Set<ChessMove> pieceMoves = new HashSet<>(knight.pieceMoves(board, position));
         Assertions.assertEquals(validMoves, pieceMoves,
-                "ChessPiece pieceMoves did not return the correct moves");
+                "chess.ChessPiece pieceMoves did not return the correct moves");
 
 
         //top right
@@ -241,7 +241,7 @@ public class KnightMoveTests {
 
         pieceMoves = new HashSet<>(knight.pieceMoves(board, position));
         Assertions.assertEquals(validMoves, pieceMoves,
-                "ChessPiece pieceMoves did not return the correct moves");
+                "chess.ChessPiece pieceMoves did not return the correct moves");
 
 
         //top left
@@ -267,7 +267,7 @@ public class KnightMoveTests {
 
         pieceMoves = new HashSet<>(knight.pieceMoves(board, position));
         Assertions.assertEquals(validMoves, pieceMoves,
-                "ChessPiece pieceMoves did not return the correct moves");
+                "chess.ChessPiece pieceMoves did not return the correct moves");
 
 
         //bottom left
@@ -293,7 +293,7 @@ public class KnightMoveTests {
 
         pieceMoves = new HashSet<>(knight.pieceMoves(board, position));
         Assertions.assertEquals(validMoves, pieceMoves,
-                "ChessPiece pieceMoves did not return the correct moves");
+                "chess.ChessPiece pieceMoves did not return the correct moves");
     }
 
 
@@ -345,7 +345,7 @@ public class KnightMoveTests {
         validMoves.add(TestFactory.getNewMove(position, TestFactory.getNewPosition(6, 3), null));
 
         Assertions.assertEquals(validMoves, pieceMoves,
-                "ChessPiece pieceMoves did not return the correct moves");
+                "chess.ChessPiece pieceMoves did not return the correct moves");
     }
 
 
@@ -402,7 +402,7 @@ public class KnightMoveTests {
         validMoves.add(TestFactory.getNewMove(position, TestFactory.getNewPosition(6, 3), null));
 
         Assertions.assertEquals(validMoves, pieceMoves,
-                "ChessPiece pieceMoves did not return the correct moves");
+                "chess.ChessPiece pieceMoves did not return the correct moves");
     }
 
 }

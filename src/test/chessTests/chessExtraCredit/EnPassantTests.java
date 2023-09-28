@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import passoffTests.TestFactory;
 
 /**
- * Tests if the ChessGame implementation can handle En Passant moves
+ * Tests if the chess.ChessGame implementation can handle En Passant moves
  * En Passant is a situational move in chess taken directly after your opponent has double moved a pawn
  * If their pawn moves next to one of your pawns, so it passes where your pawn could have captured it, you
  * may capture their pawn with your pawn as if they had only moved a single space. You may only take this move
@@ -71,7 +71,7 @@ public class EnPassantTests {
         ChessMove enPassantMove =
                 TestFactory.getNewMove(TestFactory.getNewPosition(5, 2), TestFactory.getNewPosition(6, 3), null);
         Assertions.assertTrue(game.validMoves(position).contains(enPassantMove),
-                "ChessGame validMoves did not contain a valid En Passant move");
+                "chess.ChessGame validMoves did not contain a valid En Passant move");
 
         //en passant move works correctly
         Assertions.assertDoesNotThrow(() -> game.makeMove(enPassantMove));
@@ -134,7 +134,7 @@ public class EnPassantTests {
         ChessMove enPassantMove =
                 TestFactory.getNewMove(TestFactory.getNewPosition(5, 4), TestFactory.getNewPosition(6, 3), null);
         Assertions.assertTrue(game.validMoves(position).contains(enPassantMove),
-                "ChessGame validMoves did not contain a valid En Passant move");
+                "chess.ChessGame validMoves did not contain a valid En Passant move");
 
         //en passant move works correctly
         Assertions.assertDoesNotThrow(() -> game.makeMove(enPassantMove));
@@ -197,7 +197,7 @@ public class EnPassantTests {
         ChessMove enPassantMove =
                 TestFactory.getNewMove(TestFactory.getNewPosition(4, 6), TestFactory.getNewPosition(3, 7), null);
         Assertions.assertTrue(game.validMoves(position).contains(enPassantMove),
-                "ChessGame validMoves did not contain a valid En Passant move");
+                "chess.ChessGame validMoves did not contain a valid En Passant move");
 
         //en passant move works correctly
         Assertions.assertDoesNotThrow(() -> game.makeMove(enPassantMove));
@@ -260,7 +260,7 @@ public class EnPassantTests {
         ChessMove enPassantMove =
                 TestFactory.getNewMove(TestFactory.getNewPosition(4, 8), TestFactory.getNewPosition(3, 7), null);
         Assertions.assertTrue(game.validMoves(position).contains(enPassantMove),
-                "ChessGame validMoves did not contain a valid En Passant move");
+                "chess.ChessGame validMoves did not contain a valid En Passant move");
 
         //en passant move works correctly
         Assertions.assertDoesNotThrow(() -> game.makeMove(enPassantMove));
@@ -343,7 +343,7 @@ public class EnPassantTests {
         Assertions.assertFalse(game.validMoves(position).contains(
                 TestFactory.getNewMove(TestFactory.getNewPosition(5, 2),
                         TestFactory.getNewPosition(6, 3), null)),
-                "ChessGame validMoves contained a En Passant move after the move became invalid");
+                "chess.ChessGame validMoves contained a En Passant move after the move became invalid");
     }
 
 }

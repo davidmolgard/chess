@@ -1,3 +1,5 @@
+package chess;
+
 /**
  * Represents moving a chess piece on a chessboard
  * 
@@ -6,12 +8,12 @@
  */
 public interface ChessMove {
     /**
-     * @return ChessPosition of starting location
+     * @return chess.ChessPosition of starting location
      */
     ChessPosition getStartPosition();
 
     /**
-     * @return ChessPosition of ending location
+     * @return chess.ChessPosition of ending location
      */
     ChessPosition getEndPosition();
 

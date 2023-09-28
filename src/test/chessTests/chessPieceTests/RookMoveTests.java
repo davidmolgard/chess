@@ -68,7 +68,7 @@ public class RookMoveTests {
         //check
         Set<ChessMove> pieceMoves = new HashSet<>(rook.pieceMoves(board, position));
         Assertions.assertEquals(validMoves, pieceMoves,
-                "ChessPiece pieceMoves did not return the correct moves");
+                "chess.ChessPiece pieceMoves did not return the correct moves");
     }
 
 
@@ -140,7 +140,7 @@ public class RookMoveTests {
 
         //check
         Assertions.assertEquals(validMoves, pieceMoves,
-                "ChessPiece pieceMoves did not return the correct moves");
+                "chess.ChessPiece pieceMoves did not return the correct moves");
     }
 
 
@@ -171,7 +171,7 @@ public class RookMoveTests {
 
         //make sure move list is empty
         Assertions.assertTrue(rook.pieceMoves(board, position).isEmpty(),
-                "ChessPiece pieceMoves returned valid moves for a trapped piece");
+                "chess.ChessPiece pieceMoves returned valid moves for a trapped piece");
     }
 
 }

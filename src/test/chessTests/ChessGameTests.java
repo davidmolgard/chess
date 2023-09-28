@@ -850,7 +850,7 @@ public class ChessGameTests {
 
             Set<ChessMove> gameMoves = new HashSet<>(game.validMoves(knightPosition));
             Assertions.assertEquals(validMoves, gameMoves,
-                    "ChessGame validMoves did not return the correct moves");
+                    "chess.ChessGame validMoves did not return the correct moves");
 
             //queen valid moves
             validMoves.clear();
@@ -861,7 +861,7 @@ public class ChessGameTests {
 
             gameMoves = new HashSet<>(game.validMoves(queenPosition));
             Assertions.assertEquals(validMoves, gameMoves,
-                    "ChessGame validMoves did not return the correct moves");
+                    "chess.ChessGame validMoves did not return the correct moves");
 
         }
 
@@ -904,7 +904,7 @@ public class ChessGameTests {
             game.setBoard(board);
             Set<ChessMove> gameMoves = new HashSet<>(game.validMoves(rookPosition));
             Assertions.assertEquals(validMoves, gameMoves,
-                    "ChessGame validMoves did not return the correct moves");
+                    "chess.ChessGame validMoves did not return the correct moves");
         }
 
 
@@ -936,7 +936,7 @@ public class ChessGameTests {
 
             game.setBoard(board);
             Assertions.assertTrue(game.validMoves(position).isEmpty(),
-                    "ChessGame validMoves returned valid moves for a trapped piece");
+                    "chess.ChessGame validMoves returned valid moves for a trapped piece");
         }
 
 
@@ -1003,19 +1003,19 @@ public class ChessGameTests {
             game.setBoard(board);
             Set<ChessMove> gameMoves = new HashSet<>(game.validMoves(kingPosition));
             Assertions.assertEquals(validMoves, gameMoves,
-                    "ChessGame validMoves did not return the correct moves");
+                    "chess.ChessGame validMoves did not return the correct moves");
 
             //make sure teams other pieces are not allowed to move
             Assertions.assertTrue(game.validMoves(pawnPosition).isEmpty(),
-                    "ChessGame validMoves returned valid moves for a trapped piece");
+                    "chess.ChessGame validMoves returned valid moves for a trapped piece");
             Assertions.assertTrue(game.validMoves(bishopPosition).isEmpty(),
-                    "ChessGame validMoves returned valid moves for a trapped piece");
+                    "chess.ChessGame validMoves returned valid moves for a trapped piece");
             Assertions.assertTrue(game.validMoves(queenPosition).isEmpty(),
-                    "ChessGame validMoves returned valid moves for a trapped piece");
+                    "chess.ChessGame validMoves returned valid moves for a trapped piece");
             Assertions.assertTrue(game.validMoves(knightPosition).isEmpty(),
-                    "ChessGame validMoves returned valid moves for a trapped piece");
+                    "chess.ChessGame validMoves returned valid moves for a trapped piece");
             Assertions.assertTrue(game.validMoves(rookPosition).isEmpty(),
-                    "ChessGame validMoves returned valid moves for a trapped piece");
+                    "chess.ChessGame validMoves returned valid moves for a trapped piece");
         }
 
 
@@ -1053,7 +1053,7 @@ public class ChessGameTests {
             game.setBoard(board);
             Set<ChessMove> gameMoves = new HashSet<>(game.validMoves(position));
             Assertions.assertEquals(validMoves, gameMoves,
-                    "ChessGame validMoves did not return the correct moves");
+                    "chess.ChessGame validMoves did not return the correct moves");
         }
 
     }

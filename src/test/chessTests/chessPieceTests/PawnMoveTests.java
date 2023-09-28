@@ -49,7 +49,7 @@ public class PawnMoveTests {
 
         Set<ChessMove> pieceMoves = new HashSet<>(pawn.pieceMoves(board, position));
         Assertions.assertEquals(validMoves, pieceMoves,
-                "ChessPiece pieceMoves did not return the correct moves");
+                "chess.ChessPiece pieceMoves did not return the correct moves");
     }
 
 
@@ -76,7 +76,7 @@ public class PawnMoveTests {
 
         Set<ChessMove> pieceMoves = new HashSet<>(pawn.pieceMoves(board, position));
         Assertions.assertEquals(validMoves, pieceMoves,
-                "ChessPiece pieceMoves did not return the correct moves");
+                "chess.ChessPiece pieceMoves did not return the correct moves");
     }
 
 
@@ -105,7 +105,7 @@ public class PawnMoveTests {
 
         Set<ChessMove> pieceMoves = new HashSet<>(pawn.pieceMoves(board, position));
         Assertions.assertEquals(validMoves, pieceMoves,
-                "ChessPiece pieceMoves did not return the correct moves");
+                "chess.ChessPiece pieceMoves did not return the correct moves");
     }
 
 
@@ -133,7 +133,7 @@ public class PawnMoveTests {
 
         Set<ChessMove> pieceMoves = new HashSet<>(pawn.pieceMoves(board, position));
         Assertions.assertEquals(validMoves, pieceMoves,
-                "ChessPiece pieceMoves did not return the correct moves");
+                "chess.ChessPiece pieceMoves did not return the correct moves");
     }
 
 
@@ -166,7 +166,7 @@ public class PawnMoveTests {
 
         Set<ChessMove> pieceMoves = new HashSet<>(pawn.pieceMoves(board, start));
         Assertions.assertEquals(validMoves, pieceMoves,
-                "ChessPiece pieceMoves did not return the correct moves");
+                "chess.ChessPiece pieceMoves did not return the correct moves");
     }
 
 
@@ -199,7 +199,7 @@ public class PawnMoveTests {
 
         Set<ChessMove> pieceMoves = new HashSet<>(pawn.pieceMoves(board, start));
         Assertions.assertEquals(validMoves, pieceMoves,
-                "ChessPiece pieceMoves did not return the correct moves");
+                "chess.ChessPiece pieceMoves did not return the correct moves");
     }
 
 
@@ -228,7 +228,7 @@ public class PawnMoveTests {
 
         Set<ChessMove> pieceMoves = new HashSet<>(pawn.pieceMoves(board, position));
         Assertions.assertTrue(pieceMoves.isEmpty(),
-                "ChessPiece pieceMoves returned valid moves for a trapped piece");
+                "chess.ChessPiece pieceMoves returned valid moves for a trapped piece");
     }
 
 
@@ -257,7 +257,7 @@ public class PawnMoveTests {
 
         Set<ChessMove> pieceMoves = new HashSet<>(pawn.pieceMoves(board, position));
         Assertions.assertTrue(pieceMoves.isEmpty(),
-                "ChessPiece pieceMoves returned valid moves for a trapped piece");
+                "chess.ChessPiece pieceMoves returned valid moves for a trapped piece");
     }
 
 
@@ -296,12 +296,12 @@ public class PawnMoveTests {
         //test white
         Set<ChessMove> pieceMoves = new HashSet<>(whitePawn.pieceMoves(board, whitePosition));
         Assertions.assertEquals(validMoves, pieceMoves,
-                "ChessPiece pieceMoves did not return the correct moves");
+                "chess.ChessPiece pieceMoves did not return the correct moves");
 
         //test black
         pieceMoves = new HashSet<>(blackPawn.pieceMoves(board, blackPosition));
         Assertions.assertTrue(pieceMoves.isEmpty(),
-                "ChessPiece pieceMoves returned valid moves for a trapped piece");
+                "chess.ChessPiece pieceMoves returned valid moves for a trapped piece");
     }
 
 
@@ -349,7 +349,7 @@ public class PawnMoveTests {
 
         //check
         Assertions.assertEquals(validMoves, pieceMoves,
-                "ChessPiece pieceMoves did not return the correct moves");
+                "chess.ChessPiece pieceMoves did not return the correct moves");
     }
 
 
@@ -396,7 +396,7 @@ public class PawnMoveTests {
 
         //check
         Assertions.assertEquals(validMoves, pieceMoves,
-                "ChessPiece pieceMoves did not return the correct moves");
+                "chess.ChessPiece pieceMoves did not return the correct moves");
     }
 
 
@@ -437,7 +437,7 @@ public class PawnMoveTests {
 
         Set<ChessMove> pieceMoves = new HashSet<>(pawn.pieceMoves(board, position));
         Assertions.assertEquals(validMoves, pieceMoves,
-                "ChessPiece pieceMoves did not return the correct moves");
+                "chess.ChessPiece pieceMoves did not return the correct moves");
     }
 
 }

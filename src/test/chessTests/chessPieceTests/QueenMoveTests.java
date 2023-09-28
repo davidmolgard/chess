@@ -85,7 +85,7 @@ public class QueenMoveTests {
         //check
         Set<ChessMove> pieceMoves = new HashSet<>(queen.pieceMoves(board, position));
         Assertions.assertEquals(validMoves, pieceMoves,
-                "ChessPiece pieceMoves did not return the correct moves");
+                "chess.ChessPiece pieceMoves did not return the correct moves");
     }
 
 
@@ -167,7 +167,7 @@ public class QueenMoveTests {
 
         //check
         Assertions.assertEquals(validMoves, pieceMoves,
-                "ChessPiece pieceMoves did not return the correct moves");
+                "chess.ChessPiece pieceMoves did not return the correct moves");
     }
 
 
@@ -199,7 +199,7 @@ public class QueenMoveTests {
 
         Set<ChessMove> pieceMoves = new HashSet<>(queen.pieceMoves(board, position));
         Assertions.assertTrue(pieceMoves.isEmpty(),
-                "ChessPiece pieceMoves returned valid moves for a trapped piece");
+                "chess.ChessPiece pieceMoves returned valid moves for a trapped piece");
     }
 
 }
