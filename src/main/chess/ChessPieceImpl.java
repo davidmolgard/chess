@@ -34,6 +34,43 @@ public class ChessPieceImpl implements ChessPiece{
         ChessGame.TeamColor color = board.getPiece(startPosition).getTeamColor();
         switch(board.getPiece(startPosition).getPieceType()) {
             case KING:
+                int[][] edgeTest = new int[3][3];
+                if (row == 1) {
+                    for (int i = 0; i <= 2; i++) {
+                        edgeTest[2][i] = -1;
+                    }
+                }
+                else if (row == 8) {
+                    for (int i = 0; i <= 2; i++) {
+                        edgeTest[0][i] = -1;
+                    }
+                }
+                if (col == 1) {
+                    for (int i = 0; i <= 2; i++) {
+                        edgeTest[i][0] = -1;
+                    }
+                }
+                else if (col == 8) {
+                    for (int i = 0; i <= 2; i++) {
+                        edgeTest[i][2] = -1;
+                    }
+                }
+                edgeTest[1][1] = -1;
+                for (int i = 0; i < 3; i++) {
+                    int currRow = ((row+1) - i);
+                    for (int j = 0; j < 3; j++) {
+                        int currCol = ((col-1) + j);
+                        if (edgeTest[i][j] != -1) {
+                            ChessPosition testPos = new ChessPositionImpl(currRow, currCol);
+                            if (board.getPiece(testPos) == null) {
+                                validMoves.add(new ChessMoveImpl(startPosition, testPos));
+                            }
+                            else if (board.getPiece(testPos).getTeamColor() != color) {
+                                validMoves.add(new ChessMoveImpl(startPosition, testPos));
+                            }
+                        }
+                    }
+                }
                 break;
             case QUEEN:
                 validMoves.addAll(bishopMoves(board, startPosition));
