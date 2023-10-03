@@ -1,10 +1,10 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
  * Represents a single chess piece
- * 
  * Note: You can add to this interface, but you should not alter the existing
  * methods.
  */
@@ -40,4 +40,8 @@ public interface ChessPiece {
      * @return Collection of valid moves
      */
     Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition);
+
+    ArrayList<ChessMove> rookMoves(ChessBoard board, ChessPosition startPosition);
+
+    ArrayList<ChessMove> bishopMoves(ChessBoard board, ChessPosition startPosition);
 }

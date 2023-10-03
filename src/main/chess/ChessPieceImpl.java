@@ -24,6 +24,7 @@ public class ChessPieceImpl implements ChessPiece{
         return pieceType;
     }
 
+
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition startPosition) {
         ArrayList<ChessMove> validMoves = new ArrayList<>();
@@ -32,85 +33,14 @@ public class ChessPieceImpl implements ChessPiece{
         int col = startPosition.getColumn();
         ChessGame.TeamColor color = board.getPiece(startPosition).getTeamColor();
         switch(board.getPiece(startPosition).getPieceType()) {
-            case KING: if (color == ChessGame.TeamColor.WHITE) {
-
-            }
-            else {
-
-            }
+            case KING:
                 break;
-            case QUEEN: if (color == ChessGame.TeamColor.WHITE) {
-
-            }
-            else {
-
-            }
+            case QUEEN:
+                validMoves.addAll(bishopMoves(board, startPosition));
+                validMoves.addAll(rookMoves(board, startPosition));
                 break;
             case BISHOP:
-                int currRow = row+1;
-                int currCol = col+1;
-                while ((currRow <= 8) && (currCol <= 8)) {
-                    ChessPositionImpl testPos = new ChessPositionImpl(currRow, currCol);
-                    if (board.getPiece(testPos) == null) {
-                        validMoves.add(new ChessMoveImpl(startPosition, testPos));
-                    }
-                    else {
-                        if ((board.getPiece(testPos).getTeamColor()) != color) {
-                            validMoves.add(new ChessMoveImpl(startPosition, testPos));
-                        }
-                        break;
-                    }
-                    currRow++;
-                    currCol++;
-                }
-                currRow = row-1;
-                currCol = col-1;
-                while ((currRow >= 1) && (currCol >= 1)) {
-                    ChessPositionImpl testPos = new ChessPositionImpl(currRow, currCol);
-                    if (board.getPiece(testPos) == null) {
-                        validMoves.add(new ChessMoveImpl(startPosition, testPos));
-                    }
-                    else {
-                        if ((board.getPiece(testPos).getTeamColor()) != color) {
-                            validMoves.add(new ChessMoveImpl(startPosition, testPos));
-                        }
-                        break;
-                    }
-                    currRow--;
-                    currCol--;
-                }
-                currRow = row-1;
-                currCol = col+1;
-                while ((currRow >= 1) && (currCol <= 8)) {
-                    ChessPositionImpl testPos = new ChessPositionImpl(currRow, currCol);
-                    if (board.getPiece(testPos) == null) {
-                        validMoves.add(new ChessMoveImpl(startPosition, testPos));
-                    }
-                    else {
-                        if ((board.getPiece(testPos).getTeamColor()) != color) {
-                            validMoves.add(new ChessMoveImpl(startPosition, testPos));
-                        }
-                        break;
-                    }
-                    currRow--;
-                    currCol++;
-                }
-                currRow = row+1;
-                currCol = col-1;
-                while ((currRow <= 8) && (currCol >= 1)) {
-                    ChessPositionImpl testPos = new ChessPositionImpl(currRow, currCol);
-                    if (board.getPiece(testPos) == null) {
-                        validMoves.add(new ChessMoveImpl(startPosition, testPos));
-                    }
-                    else {
-                        if ((board.getPiece(testPos).getTeamColor()) != color) {
-                            validMoves.add(new ChessMoveImpl(startPosition, testPos));
-                        }
-                        break;
-                    }
-                    currRow++;
-                    currCol--;
-                }
+                validMoves = bishopMoves(board, startPosition);
                 break;
             case KNIGHT: if (color == ChessGame.TeamColor.WHITE) {
 
@@ -120,62 +50,7 @@ public class ChessPieceImpl implements ChessPiece{
             }
                 break;
             case ROOK:
-                currRow = row+1;
-                while (currRow <= 8) {
-                    ChessPositionImpl testPos = new ChessPositionImpl(currRow, col);
-                    if (board.getPiece(testPos) == null) {
-                        validMoves.add(new ChessMoveImpl(startPosition, testPos));
-                    }
-                    else {
-                        if ((board.getPiece(testPos).getTeamColor()) != color) {
-                            validMoves.add(new ChessMoveImpl(startPosition, testPos));
-                        }
-                        break;
-                    }
-                    currRow++;
-                }
-                currRow = row-1;
-                while (currRow >= 1) {
-                    ChessPositionImpl testPos = new ChessPositionImpl(currRow, col);
-                    if (board.getPiece(testPos) == null) {
-                        validMoves.add(new ChessMoveImpl(startPosition, testPos));
-                    }
-                    else {
-                        if ((board.getPiece(testPos).getTeamColor()) != color) {
-                            validMoves.add(new ChessMoveImpl(startPosition, testPos));
-                        }
-                        break;
-                    }
-                    currRow--;
-                }
-                currCol = col+1;
-                while (currCol <= 8) {
-                    ChessPositionImpl testPos = new ChessPositionImpl(row, currCol);
-                    if (board.getPiece(testPos) == null) {
-                        validMoves.add(new ChessMoveImpl(startPosition, testPos));
-                    }
-                    else {
-                        if ((board.getPiece(testPos).getTeamColor()) != color) {
-                            validMoves.add(new ChessMoveImpl(startPosition, testPos));
-                        }
-                        break;
-                    }
-                    currCol++;
-                }
-                currCol = col-1;
-                while (currCol >= 1) {
-                    ChessPositionImpl testPos = new ChessPositionImpl(row, currCol);
-                    if (board.getPiece(testPos) == null) {
-                        validMoves.add(new ChessMoveImpl(startPosition, testPos));
-                    }
-                    else {
-                        if ((board.getPiece(testPos).getTeamColor()) != color) {
-                            validMoves.add(new ChessMoveImpl(startPosition, testPos));
-                        }
-                        break;
-                    }
-                    currCol--;
-                }
+                validMoves = rookMoves(board, startPosition);
                 break;
             case PAWN: if (color == ChessGame.TeamColor.WHITE) {
                 if (row < 7) {
@@ -286,4 +161,139 @@ public class ChessPieceImpl implements ChessPiece{
         }
         return validMoves;
     }
+
+    @Override
+    public ArrayList<ChessMove> rookMoves(ChessBoard board, ChessPosition startPosition) {
+        ArrayList<ChessMove> validMoves = new ArrayList<>();
+        ChessGame.TeamColor color = board.getPiece(startPosition).getTeamColor();
+        int row = startPosition.getRow();
+        int col = startPosition.getColumn();
+            int currRow = row + 1;
+            while (currRow <= 8) {
+                ChessPositionImpl testPos = new ChessPositionImpl(currRow, col);
+                if (board.getPiece(testPos) == null) {
+                    validMoves.add(new ChessMoveImpl(startPosition, testPos));
+                } else {
+                    if ((board.getPiece(testPos).getTeamColor()) != color) {
+                        validMoves.add(new ChessMoveImpl(startPosition, testPos));
+                    }
+                    break;
+                }
+                currRow++;
+            }
+            currRow = row - 1;
+            while (currRow >= 1) {
+                ChessPositionImpl testPos = new ChessPositionImpl(currRow, col);
+                if (board.getPiece(testPos) == null) {
+                    validMoves.add(new ChessMoveImpl(startPosition, testPos));
+                } else {
+                    if ((board.getPiece(testPos).getTeamColor()) != color) {
+                        validMoves.add(new ChessMoveImpl(startPosition, testPos));
+                    }
+                    break;
+                }
+                currRow--;
+            }
+            int currCol = col + 1;
+            while (currCol <= 8) {
+                ChessPositionImpl testPos = new ChessPositionImpl(row, currCol);
+                if (board.getPiece(testPos) == null) {
+                    validMoves.add(new ChessMoveImpl(startPosition, testPos));
+                } else {
+                    if ((board.getPiece(testPos).getTeamColor()) != color) {
+                        validMoves.add(new ChessMoveImpl(startPosition, testPos));
+                    }
+                    break;
+                }
+                currCol++;
+            }
+            currCol = col - 1;
+            while (currCol >= 1) {
+                ChessPositionImpl testPos = new ChessPositionImpl(row, currCol);
+                if (board.getPiece(testPos) == null) {
+                    validMoves.add(new ChessMoveImpl(startPosition, testPos));
+                } else {
+                    if ((board.getPiece(testPos).getTeamColor()) != color) {
+                        validMoves.add(new ChessMoveImpl(startPosition, testPos));
+                    }
+                    break;
+                }
+                currCol--;
+            }
+            return validMoves;
+        }
+
+    @Override
+    public ArrayList<ChessMove> bishopMoves(ChessBoard board, ChessPosition startPosition) {
+        ArrayList<ChessMove> validMoves = new ArrayList<>();
+        ChessGame.TeamColor color = board.getPiece(startPosition).getTeamColor();
+        int row = startPosition.getRow();
+        int col = startPosition.getColumn();
+        int currRow = row+1;
+        int currCol = col+1;
+        while ((currRow <= 8) && (currCol <= 8)) {
+            ChessPositionImpl testPos = new ChessPositionImpl(currRow, currCol);
+            if (board.getPiece(testPos) == null) {
+                validMoves.add(new ChessMoveImpl(startPosition, testPos));
+            }
+            else {
+                if ((board.getPiece(testPos).getTeamColor()) != color) {
+                    validMoves.add(new ChessMoveImpl(startPosition, testPos));
+                }
+                break;
+            }
+            currRow++;
+            currCol++;
+        }
+        currRow = row-1;
+        currCol = col-1;
+        while ((currRow >= 1) && (currCol >= 1)) {
+            ChessPositionImpl testPos = new ChessPositionImpl(currRow, currCol);
+            if (board.getPiece(testPos) == null) {
+                validMoves.add(new ChessMoveImpl(startPosition, testPos));
+            }
+            else {
+                if ((board.getPiece(testPos).getTeamColor()) != color) {
+                    validMoves.add(new ChessMoveImpl(startPosition, testPos));
+                }
+                break;
+            }
+            currRow--;
+            currCol--;
+        }
+        currRow = row-1;
+        currCol = col+1;
+        while ((currRow >= 1) && (currCol <= 8)) {
+            ChessPositionImpl testPos = new ChessPositionImpl(currRow, currCol);
+            if (board.getPiece(testPos) == null) {
+                validMoves.add(new ChessMoveImpl(startPosition, testPos));
+            }
+            else {
+                if ((board.getPiece(testPos).getTeamColor()) != color) {
+                    validMoves.add(new ChessMoveImpl(startPosition, testPos));
+                }
+                break;
+            }
+            currRow--;
+            currCol++;
+        }
+        currRow = row+1;
+        currCol = col-1;
+        while ((currRow <= 8) && (currCol >= 1)) {
+            ChessPositionImpl testPos = new ChessPositionImpl(currRow, currCol);
+            if (board.getPiece(testPos) == null) {
+                validMoves.add(new ChessMoveImpl(startPosition, testPos));
+            }
+            else {
+                if ((board.getPiece(testPos).getTeamColor()) != color) {
+                    validMoves.add(new ChessMoveImpl(startPosition, testPos));
+                }
+                break;
+            }
+            currRow++;
+            currCol--;
+        }
+        return validMoves;
+    }
 }
+
