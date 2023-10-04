@@ -79,11 +79,31 @@ public class ChessPieceImpl implements ChessPiece{
             case BISHOP:
                 validMoves = bishopMoves(board, startPosition);
                 break;
-            case KNIGHT: if (color == ChessGame.TeamColor.WHITE) {
-
-            }
-            else {
-
+            case KNIGHT: for (int i = -2; i < 3; i+=4) {
+                for (int j = -1; j <= 1; j+=2) {
+                    if ((row+i <= 8) && (row+i >= 1)) {
+                        if ((col+j <= 8) && (col+j >= 1)) {
+                            ChessPosition testPos = new ChessPositionImpl(row+i, col+j);
+                            if (board.getPiece(testPos) == null) {
+                                validMoves.add(new ChessMoveImpl(startPosition, testPos));
+                            }
+                            else if (board.getPiece(testPos).getTeamColor() != color) {
+                                validMoves.add(new ChessMoveImpl(startPosition, testPos));
+                            }
+                        }
+                    }
+                    if ((col+i <= 8) && (col+i >= 1)) {
+                        if ((row+j <= 8) && (row+j >= 1)) {
+                            ChessPosition testPos = new ChessPositionImpl(row+j, col+i);
+                            if (board.getPiece(testPos) == null) {
+                                validMoves.add(new ChessMoveImpl(startPosition, testPos));
+                            }
+                            else if (board.getPiece(testPos).getTeamColor() != color) {
+                                validMoves.add(new ChessMoveImpl(startPosition, testPos));
+                            }
+                        }
+                    }
+                }
             }
                 break;
             case ROOK:
