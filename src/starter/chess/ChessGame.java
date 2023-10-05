@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -88,4 +89,9 @@ public interface ChessGame {
 
     //sees if King has any valid moves
     boolean kingHasValidMoves(TeamColor teamColor);
+
+    ChessPosition findKingPos(TeamColor teamColor);
+    ArrayList<ChessMove> checkThreats(TeamColor teamColor);
+
+    boolean kingSurroundingsNotUnderAttack(TeamColor teamColor);
 }
