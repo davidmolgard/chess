@@ -39,6 +39,7 @@ public interface ChessGame {
      *         startPosition
      */
     Collection<ChessMove> validMoves(ChessPosition startPosition);
+    Collection<ChessMove> validMoves(ChessPosition startPosition, ChessBoard board);
 
     /**
      * Makes a move in a chess game
@@ -91,7 +92,8 @@ public interface ChessGame {
     boolean kingHasValidMoves(TeamColor teamColor);
 
     ChessPosition findKingPos(TeamColor teamColor);
+    ChessPosition findKingPos(TeamColor teamColor, ChessBoard board);
     ArrayList<ChessMove> checkThreats(TeamColor teamColor);
-
+    ArrayList<ChessMove> checkThreats(TeamColor teamColor, ChessBoard board);
     boolean kingSurroundingsNotUnderAttack(TeamColor teamColor);
 }

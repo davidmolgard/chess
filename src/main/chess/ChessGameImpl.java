@@ -22,6 +22,10 @@ public class ChessGameImpl implements ChessGame{
 
     @Override
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
+        return validMoves(startPosition, board);
+    }
+    @Override
+    public Collection<ChessMove> validMoves(ChessPosition startPosition, ChessBoard board) {
         ArrayList<ChessMove> validMoveArray = new ArrayList<>();
         if (board.getPiece(startPosition) == null) { return validMoveArray;} //return empty collection
         return board.getPiece(startPosition).pieceMoves(board, startPosition);
@@ -76,6 +80,10 @@ public class ChessGameImpl implements ChessGame{
 
     @Override
     public ChessPosition findKingPos(TeamColor teamColor) {
+        return findKingPos(teamColor, board);
+    }
+    @Override
+    public ChessPosition findKingPos(TeamColor teamColor, ChessBoard board) {
         ChessPosition testPos = new ChessPositionImpl(0,0);
         ChessPosition kingPos = new ChessPositionImpl(-1,-1);
         for (int i = 1; i <= 8; i++) {
@@ -94,8 +102,12 @@ public class ChessGameImpl implements ChessGame{
 
     @Override
     public ArrayList<ChessMove> checkThreats(TeamColor teamColor) {
+        return checkThreats(teamColor, board);
+    }
+    @Override
+    public ArrayList<ChessMove> checkThreats(TeamColor teamColor, ChessBoard board) {
         ArrayList<ChessMove> checkThreats = new ArrayList<>();
-        ChessPosition kingPos = findKingPos(teamColor);
+        ChessPosition kingPos = findKingPos(teamColor, board);
         ChessPosition testPos = new ChessPositionImpl(0,0);
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
@@ -127,6 +139,18 @@ public class ChessGameImpl implements ChessGame{
             kingSurroundings.add(move.getEndPosition());
         }
         ArrayList<ChessPosition> kingSurroundingsCopy = new ArrayList<>(kingSurroundings);
+        for (ChessPosition testPos : kingSurroundingsCopy) {
+            if (board.getPiece(testPos) != null) {
+                ChessBoard testBoard = new ChessBoardImpl(board);
+                testBoard.makeMove(kingPos, testPos);
+                if(!checkThreats(teamColor, testBoard).isEmpty()) {
+                    kingSurroundings.remove(testPos);
+                }
+            }
+        }
+        if (kingSurroundingsCopy.size() > kingSurroundings.size()) {
+            kingSurroundingsCopy = new ArrayList<>(kingSurroundings);
+        }
         ChessPosition testPos = new ChessPositionImpl(0,0);
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
@@ -166,6 +190,9 @@ public class ChessGameImpl implements ChessGame{
                             }
                         }
                         for (ChessMove testMove : validMoves) {
+                            if (kingSurroundingsCopy.size() > kingSurroundings.size()) {
+                                kingSurroundingsCopy = new ArrayList<>(kingSurroundings);
+                            }
                             for (ChessPosition surroundingPos : kingSurroundingsCopy) {
                                 if ((testMove.getEndPosition().getRow() == surroundingPos.getRow()) && (testMove.getEndPosition().getColumn() == surroundingPos.getColumn())) {
                                     kingSurroundings.remove(surroundingPos);
