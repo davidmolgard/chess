@@ -15,7 +15,7 @@ public interface ChessBoard {
      * @param piece    the piece to add
      */
     void makeMove(ChessPosition startPosition, ChessPosition endPosition);
-    //add makeMove function
+    void makeMove(ChessMove move);
     void addPiece(ChessPosition position, ChessPiece piece);
 
     /**

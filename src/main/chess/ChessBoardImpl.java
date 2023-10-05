@@ -22,6 +22,19 @@ public class ChessBoardImpl implements ChessBoard{
     }
 
     @Override
+    public void makeMove(ChessMove move) {
+        if (move.getPromotionPiece() == null) {
+            makeMove(move.getStartPosition(), move.getEndPosition());
+        }
+        else {
+            ChessPiece promotionPiece = new ChessPieceImpl(getPiece(move.getStartPosition()).getTeamColor(), move.getPromotionPiece());
+            addPiece(move.getStartPosition(), null);
+
+            addPiece(move.getEndPosition(), promotionPiece);
+        }
+    }
+
+    @Override
     public void addPiece(ChessPosition position, ChessPiece piece) {
         chessBoard[position.getColumn() - 1][position.getRow() - 1] = piece;
     }
