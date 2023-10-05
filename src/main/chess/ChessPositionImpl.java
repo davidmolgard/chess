@@ -21,6 +21,12 @@ public class ChessPositionImpl implements ChessPosition{
     }
 
     @Override
+    public void setPosition(int row, int col) {
+        this.row = row;
+        this.column = col;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
