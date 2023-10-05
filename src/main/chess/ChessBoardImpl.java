@@ -6,6 +6,14 @@ public class ChessBoardImpl implements ChessBoard{
 
     }
 
+    public ChessBoardImpl(ChessBoard board) {
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                addPiece(new ChessPositionImpl(i,j), board.getPiece(new ChessPositionImpl(i,j)));
+            }
+        }
+    }
+
     @Override
     public void makeMove(ChessPosition startPosition, ChessPosition endPosition) {
         ChessPiece piece = getPiece(startPosition);
