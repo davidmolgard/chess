@@ -141,16 +141,12 @@ public class ChessGameImpl implements ChessGame{
                                 if (i > 1) {
                                     if (j > 1) {
                                         testPos1.setPosition(testPos1.getRow(), testPos1.getColumn()-1);
-                                        if (board.getPiece(testPos1) == null) {
-                                            validMoves.add(new ChessMoveImpl(testPos, testPos1));
-                                        }
+                                        validMoves.add(new ChessMoveImpl(testPos, new ChessPositionImpl(testPos1.getRow(), testPos1.getColumn())));
                                         testPos1.setPosition(testPos1.getRow(), testPos1.getColumn()+1);
                                     }
                                     if (j < 8) {
                                         testPos1.setPosition(testPos1.getRow(), testPos1.getColumn()+1);
-                                        if (board.getPiece(testPos1) == null) {
-                                            validMoves.add(new ChessMoveImpl(testPos, testPos1));
-                                        }
+                                        validMoves.add(new ChessMoveImpl(testPos, new ChessPositionImpl(testPos1.getRow(), testPos1.getColumn())));
                                     }
                                 }
                             }
@@ -159,17 +155,12 @@ public class ChessGameImpl implements ChessGame{
                                 if (i < 8) {
                                     if (j > 1) {
                                         testPos1.setPosition(testPos1.getRow(), testPos1.getColumn()-1);
-                                        if (board.getPiece(testPos1) == null) {
-                                            validMoves.add(new ChessMoveImpl(testPos, testPos1));
-                                        }
+                                        validMoves.add(new ChessMoveImpl(testPos, new ChessPositionImpl(testPos1.getRow(), testPos1.getColumn())));
                                         testPos1.setPosition(testPos1.getRow(), testPos1.getColumn()+1);
                                     }
                                     if (j < 8) {
                                         testPos1.setPosition(testPos1.getRow(), testPos1.getColumn()+1);
-                                        if (board.getPiece(testPos1) == null) {
-                                            validMoves.add(new ChessMoveImpl(testPos, testPos1));
-                                        }
-                                        testPos1.setPosition(testPos1.getRow(), testPos1.getColumn()-1);
+                                        validMoves.add(new ChessMoveImpl(testPos, new ChessPositionImpl(testPos1.getRow(), testPos1.getColumn())));
                                     }
                                 }
                             }
