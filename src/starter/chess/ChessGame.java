@@ -56,7 +56,7 @@ public interface ChessGame {
      * @return True if the specified team is in check
      */
     boolean isInCheck(TeamColor teamColor);
-
+    boolean isInCheck(TeamColor teamColor, ChessBoard board);
     /**
      * Determines if the given team is in checkmate
      *

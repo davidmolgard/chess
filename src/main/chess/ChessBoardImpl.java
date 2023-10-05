@@ -29,7 +29,6 @@ public class ChessBoardImpl implements ChessBoard{
         else {
             ChessPiece promotionPiece = new ChessPieceImpl(getPiece(move.getStartPosition()).getTeamColor(), move.getPromotionPiece());
             addPiece(move.getStartPosition(), null);
-
             addPiece(move.getEndPosition(), promotionPiece);
         }
     }

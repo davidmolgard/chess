@@ -40,10 +40,13 @@ public class ChessGameImpl implements ChessGame{
             board.makeMove(move.getStartPosition(), move.getEndPosition());
         }
     }
-
     @Override
     public boolean isInCheck(TeamColor teamColor) {
-        return !checkThreats(teamColor).isEmpty();
+        return isInCheck(teamColor, board);
+    }
+    @Override
+    public boolean isInCheck(TeamColor teamColor, ChessBoard board) {
+        return !checkThreats(teamColor, board).isEmpty();
     }
 
     @Override
@@ -56,7 +59,29 @@ public class ChessGameImpl implements ChessGame{
     @Override
     public boolean isInStalemate(TeamColor teamColor) {
         if (isInCheck(teamColor)) { return false;}
-        return !kingHasValidMoves(teamColor);
+        if (kingSurroundingsNotUnderAttack(teamColor)) { return false;}
+        ChessPosition testPos = new ChessPositionImpl(0,0);
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                testPos.setPosition(i,j);
+                if (board.getPiece(testPos) != null) {
+                    if ((board.getPiece(testPos).getTeamColor() == teamColor) && (board.getPiece(testPos).getPieceType() != ChessPiece.PieceType.KING)) {
+                        Collection<ChessMove> validMoves = validMoves(testPos);
+                        Collection<ChessMove> validMovesCopy = new ArrayList<>(validMoves);
+                        if (!validMoves.isEmpty()) {
+                            for (ChessMove testMove : validMovesCopy) {
+                                ChessBoard testBoard = new ChessBoardImpl(board);
+                                testBoard.makeMove(testMove);
+                                if (!isInCheck(teamColor, testBoard)) {
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     @Override
