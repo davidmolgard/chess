@@ -8,7 +8,7 @@ public class ChessGameImpl implements ChessGame{
     TeamColor teamTurn = TeamColor.WHITE;
     ChessBoard board = new ChessBoardImpl();
     public ChessGameImpl() {
-        board.resetBoard();
+
     }
     @Override
     public TeamColor getTeamTurn() {
@@ -33,11 +33,19 @@ public class ChessGameImpl implements ChessGame{
 
     @Override
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        if (!(validMoves(move.getStartPosition()).contains(move))) { // || (board.getPiece(move.getStartPosition()).getTeamColor() != teamTurn)
-            throw new InvalidMoveException("Not Valid Move");
+        try {
+            invalidMoveTest(move);
+        }
+        catch (InvalidMoveException ex){
+            System.out.println(ex.getMessage());
+            throw new InvalidMoveException();
+        }
+        board.makeMove(move);
+        if (getTeamTurn() == TeamColor.WHITE) {
+            setTeamTurn(TeamColor.BLACK);
         }
         else {
-            board.makeMove(move.getStartPosition(), move.getEndPosition());
+            setTeamTurn(TeamColor.WHITE);
         }
     }
     @Override
@@ -139,7 +147,7 @@ public class ChessGameImpl implements ChessGame{
                 testPos.setPosition(i,j);
                 if (board.getPiece(testPos) != null) {
                     if (board.getPiece(testPos).getTeamColor() != teamColor) {
-                        Collection<ChessMove> validMoves = validMoves(testPos);
+                        Collection<ChessMove> validMoves = validMoves(testPos, board);
                         for (ChessMove testMove : validMoves) {
                             if ((testMove.getEndPosition().getRow() == kingPos.getRow()) && (testMove.getEndPosition().getColumn() == kingPos.getColumn())) {
                                 checkThreats.add(testMove);
@@ -232,5 +240,24 @@ public class ChessGameImpl implements ChessGame{
             }
         }
         return true;
+    }
+
+    @Override
+    public void invalidMoveTest(ChessMove move) throws InvalidMoveException {
+        boolean contains = false;
+        for (ChessMove testMove : validMoves(move.getStartPosition())) {
+            if ((testMove.getEndPosition().getRow() == move.getEndPosition().getRow()) && (testMove.getEndPosition().getColumn() == move.getEndPosition().getColumn())) {
+                contains = true;
+                break;
+            }
+        }
+        if (!contains) { // || (board.getPiece(move.getStartPosition()).getTeamColor() != teamTurn)
+            throw new InvalidMoveException("Not Valid Move");
+        }
+        else if (board.getPiece(move.getStartPosition()) != null) {
+            if (board.getPiece(move.getStartPosition()).getTeamColor() != getTeamTurn()) {
+                throw new InvalidMoveException("Not Valid Move");
+            }
+        }
     }
 }

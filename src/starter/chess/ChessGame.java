@@ -95,4 +95,5 @@ public interface ChessGame {
     ArrayList<ChessMove> checkThreats(TeamColor teamColor);
     ArrayList<ChessMove> checkThreats(TeamColor teamColor, ChessBoard board);
     boolean kingSurroundingsNotUnderAttack(TeamColor teamColor);
+    void invalidMoveTest(ChessMove move) throws InvalidMoveException;
 }
