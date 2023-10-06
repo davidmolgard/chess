@@ -129,7 +129,7 @@ public class ChessPieceImpl implements ChessPiece{
                 }
                 if (row == 2) {
                     ChessPositionImpl testPos = new ChessPositionImpl(row+2, col);
-                    if ((board.getPiece(testPos) == null) && (board.getPiece(new ChessPositionImpl(row-1, col)) == null)) {
+                    if ((board.getPiece(testPos) == null) && (board.getPiece(new ChessPositionImpl(row+1, col)) == null)) {
                         validMoves.add(new ChessMoveImpl(startPosition, testPos, null));
                     }
                 }
