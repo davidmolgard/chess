@@ -26,9 +26,22 @@ public class ChessGameImpl implements ChessGame{
     }
     @Override
     public Collection<ChessMove> validMoves(ChessPosition startPosition, ChessBoard board) {
-        ArrayList<ChessMove> validMoveArray = new ArrayList<>();
-        if (board.getPiece(startPosition) == null) { return validMoveArray;} //return empty collection
-        return board.getPiece(startPosition).pieceMoves(board, startPosition);
+
+        if (board.getPiece(startPosition) == null) { return new ArrayList<>();} //return empty collection
+        ArrayList<ChessMove> validMoveArray = new ArrayList<>(board.getPiece(startPosition).pieceMoves(board, startPosition));
+        ArrayList<ChessMove> validMoveArrayCopy = new ArrayList<>(validMoveArray);
+        for (ChessMove move : validMoveArrayCopy) {
+            if (movesCausesCheck(move)) {
+                validMoveArray.remove(move);
+            }
+        }
+        return validMoveArray;
+    }
+
+    public boolean movesCausesCheck(ChessMove move) {
+        ChessBoard testBoard = new ChessBoardImpl(board);
+        testBoard.makeMove(move);
+        return !checkThreats(board.getPiece(move.getStartPosition()).getTeamColor(), testBoard).isEmpty();
     }
 
     @Override
@@ -132,6 +145,9 @@ public class ChessGameImpl implements ChessGame{
         }
         return null;
     }
+    public Collection<ChessMove> validMovesHelper(ChessPosition startPosition, ChessBoard board) {
+        return board.getPiece(startPosition).pieceMoves(board, startPosition);
+    }
 
     @Override
     public ArrayList<ChessMove> checkThreats(TeamColor teamColor) {
@@ -141,13 +157,16 @@ public class ChessGameImpl implements ChessGame{
     public ArrayList<ChessMove> checkThreats(TeamColor teamColor, ChessBoard board) {
         ArrayList<ChessMove> checkThreats = new ArrayList<>();
         ChessPosition kingPos = findKingPos(teamColor, board);
+        if (kingPos == null) {
+            return checkThreats;
+        }
         ChessPosition testPos = new ChessPositionImpl(0,0);
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
                 testPos.setPosition(i,j);
                 if (board.getPiece(testPos) != null) {
                     if (board.getPiece(testPos).getTeamColor() != teamColor) {
-                        Collection<ChessMove> validMoves = validMoves(testPos, board);
+                        Collection<ChessMove> validMoves = validMovesHelper(testPos, board);
                         for (ChessMove testMove : validMoves) {
                             if ((testMove.getEndPosition().getRow() == kingPos.getRow()) && (testMove.getEndPosition().getColumn() == kingPos.getColumn())) {
                                 checkThreats.add(testMove);
