@@ -8,14 +8,25 @@ package chess;
  */
 public interface ChessBoard {
 
+    boolean getEnPassantOneTurnDelay();
+
+    void enPassantOneTurnDelay();
+
+    boolean enPassantPossible();
+
+    void setEnPassantPositions(ChessPosition pos, ChessPosition attackPos);
+
+    ChessMove getEnPassantMove();
+
+
+    void makeMove(ChessPosition startPosition, ChessPosition endPosition);
+    void makeMove(ChessMove move);
     /**
      * Adds a chess piece to the chessboard
-     * 
+     *
      * @param position where to add the piece to
      * @param piece    the piece to add
      */
-    void makeMove(ChessPosition startPosition, ChessPosition endPosition);
-    void makeMove(ChessMove move);
     void addPiece(ChessPosition position, ChessPiece piece);
 
     /**

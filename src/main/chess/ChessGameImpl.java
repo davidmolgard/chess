@@ -2,11 +2,11 @@ package chess;
 
 import java.util.Collection;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class ChessGameImpl implements ChessGame{
-    TeamColor teamTurn = TeamColor.WHITE;
-    ChessBoard board = new ChessBoardImpl();
+    private TeamColor teamTurn = TeamColor.WHITE;
+    private ChessBoard board = new ChessBoardImpl();
+
     public ChessGameImpl() {
 
     }
@@ -45,6 +45,42 @@ public class ChessGameImpl implements ChessGame{
     }
 
     @Override
+    public boolean interpositionPossible(TeamColor teamColor) {
+        ArrayList<ChessMove> checkThreats = checkThreats(teamColor);
+        ArrayList<ChessMove> checkThreatsCopy = new ArrayList<>(checkThreats);
+        ChessPosition kingPos = findKingPos(teamColor);
+        for (ChessMove move : checkThreatsCopy) {
+            if (board.getPiece(move.getStartPosition()) != null) {
+                ChessPiece.PieceType pieceType = board.getPiece(move.getStartPosition()).getPieceType();
+                int row = move.getStartPosition().getRow();
+                int col = move.getStartPosition().getColumn();
+                if ((pieceType == ChessPiece.PieceType.KNIGHT) ||
+                        (pieceType == ChessPiece.PieceType.PAWN)) {
+                    return false;
+                } else {
+                    ChessPosition testPos = new ChessPositionImpl(0, 0);
+                    for (int i = 1; i <= 8; i++) {
+                        for (int j = 1; j <= 8; j++) {
+                            testPos.setPosition(i, j);
+                            if (board.getPiece(testPos) != null) {
+                                if (board.getPiece(testPos).getTeamColor() == teamColor) {
+                                    for (ChessMove testMove : validMovesHelper(testPos, board)) {
+                                        if (!movesCausesCheck(testMove)) {
+                                            return true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    @Override
     public void makeMove(ChessMove move) throws InvalidMoveException {
         try {
             invalidMoveTest(move);
@@ -74,6 +110,7 @@ public class ChessGameImpl implements ChessGame{
     public boolean isInCheckmate(TeamColor teamColor) {
         if (!isInCheck(teamColor)) { return false;}
         if (kingSurroundingsNotUnderAttack(teamColor)) { return false;}
+        if (interpositionPossible(teamColor)) { return false;}
         return true;
     }
 

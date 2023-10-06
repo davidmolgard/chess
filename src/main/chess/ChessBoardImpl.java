@@ -1,5 +1,7 @@
 package chess;
 
+import static chess.ChessPiece.PieceType.PAWN;
+
 public class ChessBoardImpl implements ChessBoard{
     ChessPiece[][] chessBoard = new ChessPiece[8][8];
     public ChessBoardImpl() {
@@ -13,12 +15,67 @@ public class ChessBoardImpl implements ChessBoard{
             }
         }
     }
+    private static class EnPassantPossible {
+        ChessPosition positionOfPawn;
+        ChessPosition attackingPos;
+        boolean isPossible = false;
+        boolean oneTurnDelay = false;
+        public EnPassantPossible() {
 
+        }
+        public void setEnPassantPossible(ChessPosition pos, ChessPosition attackingPos) {
+            this.attackingPos = attackingPos;
+            positionOfPawn = pos;
+            isPossible = true;
+            oneTurnDelay = false;
+        }
+
+        public boolean isPossible() {
+            return isPossible;
+        }
+        public void oneTurnDelay() {
+            oneTurnDelay = true;
+        }
+
+        public void setFalse() {
+            isPossible = false;
+        }
+    }
+    private EnPassantPossible enPassantPossible = new EnPassantPossible();
+    @Override
+    public boolean getEnPassantOneTurnDelay() {
+        return enPassantPossible.oneTurnDelay;
+    }
+    @Override
+    public void enPassantOneTurnDelay() {
+        enPassantPossible.oneTurnDelay();
+    }
+    @Override
+    public boolean enPassantPossible() {
+        return enPassantPossible.isPossible();
+    }
+    @Override
+    public void setEnPassantPositions(ChessPosition pos, ChessPosition attackPos) {
+        enPassantPossible.setEnPassantPossible(pos, attackPos);
+    }
+    @Override
+    public ChessMove getEnPassantMove() {
+        return new ChessMoveImpl(enPassantPossible.positionOfPawn, enPassantPossible.attackingPos);
+    }
     @Override
     public void makeMove(ChessPosition startPosition, ChessPosition endPosition) {
         ChessPiece piece = getPiece(startPosition);
+        if ((piece.getPieceType() == PAWN) && (getPiece(endPosition) == null) && (startPosition.getColumn() != endPosition.getColumn())) {
+            addPiece(new ChessPositionImpl(startPosition.getRow(), endPosition.getColumn()), null);
+        }
         addPiece(startPosition, null);
         addPiece(endPosition, piece);
+        if (enPassantPossible() && getEnPassantOneTurnDelay()) {
+            enPassantPossible.setFalse();
+        }
+        else if (enPassantPossible() && !getEnPassantOneTurnDelay()) {
+            enPassantOneTurnDelay();
+        }
     }
 
     @Override
@@ -30,6 +87,9 @@ public class ChessBoardImpl implements ChessBoard{
             ChessPiece promotionPiece = new ChessPieceImpl(getPiece(move.getStartPosition()).getTeamColor(), move.getPromotionPiece());
             addPiece(move.getStartPosition(), null);
             addPiece(move.getEndPosition(), promotionPiece);
+            if (enPassantPossible()) {
+                enPassantPossible.setFalse();
+            }
         }
     }
 
@@ -46,8 +106,8 @@ public class ChessBoardImpl implements ChessBoard{
     @Override
     public void resetBoard() {
         for (int i = 0; i < 8; i++) {
-            chessBoard[i][1] = new ChessPieceImpl(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
-            chessBoard[i][6] = new ChessPieceImpl(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
+            chessBoard[i][1] = new ChessPieceImpl(ChessGame.TeamColor.WHITE, PAWN);
+            chessBoard[i][6] = new ChessPieceImpl(ChessGame.TeamColor.BLACK, PAWN);
         }
         for (int i = 0; i < 8; i++) {
             for (int j = 2; j < 6; j++) {

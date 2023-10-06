@@ -131,6 +131,30 @@ public class ChessPieceImpl implements ChessPiece{
                     ChessPositionImpl testPos = new ChessPositionImpl(row+2, col);
                     if ((board.getPiece(testPos) == null) && (board.getPiece(new ChessPositionImpl(row+1, col)) == null)) {
                         validMoves.add(new ChessMoveImpl(startPosition, testPos, null));
+                        ChessPositionImpl enPassantTestPos = new ChessPositionImpl(0,0);
+                        if (col > 1) {
+                            enPassantTestPos.setPosition(row+2, col-1);
+                            if (board.getPiece(enPassantTestPos) != null) {
+                                if ((board.getPiece(enPassantTestPos).getPieceType() == PieceType.PAWN) && (board.getPiece(enPassantTestPos).getTeamColor() != teamColor)) {
+                                    board.setEnPassantPositions(new ChessPositionImpl(enPassantTestPos.getRow(), enPassantTestPos.getColumn()), new ChessPositionImpl(row+1, col));
+                                }
+                            }
+                        }
+                        if (col < 8) {
+                            enPassantTestPos.setPosition(row+2, col+1);
+                            if (board.getPiece(enPassantTestPos) != null) {
+                                if ((board.getPiece(enPassantTestPos).getPieceType() == PieceType.PAWN) && (board.getPiece(enPassantTestPos).getTeamColor() != teamColor)) {
+                                    board.setEnPassantPositions(new ChessPositionImpl(enPassantTestPos.getRow(), enPassantTestPos.getColumn()), new ChessPositionImpl(row+1, col));
+                                }
+                            }
+                        }
+                    }
+                }
+                if (row == 5) {
+                    if (board.enPassantPossible()) {
+                        if ((row == board.getEnPassantMove().getStartPosition().getRow()) && (col == board.getEnPassantMove().getStartPosition().getColumn())) {
+                            validMoves.add(board.getEnPassantMove());
+                        }
                     }
                 }
                 if (row == 7) {
@@ -179,10 +203,34 @@ public class ChessPieceImpl implements ChessPiece{
                         }
                     }
                 }
+                if (row == 4) {
+                    if (board.enPassantPossible()) {
+                        if ((row == board.getEnPassantMove().getStartPosition().getRow()) && (col == board.getEnPassantMove().getStartPosition().getColumn())) {
+                            validMoves.add(board.getEnPassantMove());
+                        }
+                    }
+                }
                 if (row == 7) {
                     ChessPositionImpl testPos = new ChessPositionImpl(row-2, col);
                     if ((board.getPiece(testPos) == null) && (board.getPiece(new ChessPositionImpl(row-1, col)) == null)) {
                         validMoves.add(new ChessMoveImpl(startPosition, testPos, null));
+                        ChessPositionImpl enPassantTestPos = new ChessPositionImpl(0,0);
+                        if (col > 1) {
+                            enPassantTestPos.setPosition(row-2, col-1);
+                            if (board.getPiece(enPassantTestPos) != null) {
+                                if ((board.getPiece(enPassantTestPos).getPieceType() == PieceType.PAWN) && (board.getPiece(enPassantTestPos).getTeamColor() != teamColor)) {
+                                    board.setEnPassantPositions(new ChessPositionImpl(enPassantTestPos.getRow(), enPassantTestPos.getColumn()), new ChessPositionImpl(row-1, col));
+                                }
+                            }
+                        }
+                        if (col < 8) {
+                            enPassantTestPos.setPosition(row-2, col+1);
+                            if (board.getPiece(enPassantTestPos) != null) {
+                                if ((board.getPiece(enPassantTestPos).getPieceType() == PieceType.PAWN) && (board.getPiece(enPassantTestPos).getTeamColor() != teamColor)) {
+                                    board.setEnPassantPositions(new ChessPositionImpl(enPassantTestPos.getRow(), enPassantTestPos.getColumn()), new ChessPositionImpl(row-1, col));
+                                }
+                            }
+                        }
                     }
                 }
                 if (row == 2) {

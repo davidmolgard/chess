@@ -17,6 +17,7 @@ public class ChessMoveImpl implements ChessMove{
         endPosition = end;
         promotionPiece = null;
     }
+
     @Override
     public ChessPosition getStartPosition() {
         return startPosition;
@@ -44,4 +45,5 @@ public class ChessMoveImpl implements ChessMove{
     public int hashCode() {
         return Objects.hash(startPosition, endPosition, promotionPiece);
     }
+
 }

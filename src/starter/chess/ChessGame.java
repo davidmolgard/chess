@@ -97,4 +97,5 @@ public interface ChessGame {
     boolean kingSurroundingsNotUnderAttack(TeamColor teamColor);
     void invalidMoveTest(ChessMove move) throws InvalidMoveException;
     boolean movesCausesCheck(ChessMove move);
+    boolean interpositionPossible(TeamColor teamColor);
 }
