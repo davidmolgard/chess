@@ -4,7 +4,7 @@ import server.models.AuthToken;
 import service.loginClasses.LoginRequest;
 
 public class LogoutRequest {
-    AuthToken authToken;
+    private AuthToken authToken;
 
     public LogoutRequest(AuthToken authToken) {
         this.authToken = authToken;
