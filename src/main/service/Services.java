@@ -15,7 +15,7 @@ import service.logoutClasses.LogoutResult;
 import service.registerClasses.RegisterRequest;
 import service.registerClasses.RegisterResult;
 
-public class Services { //FIXME actually implement
+public class Services {
     ClearResult clear(ClearRequest req) {
         return new ClearResult();
     }

@@ -8,9 +8,10 @@ import java.util.HashMap;
 public class GameDataAccess implements DataAccessInterface {
     HashMap<Integer, Game> allGames = new HashMap<>();
     @Override
-    public void insert() {
+    public int insert() {
         int gameID = 0;
         allGames.put(gameID, new Game());
+        return gameID;
     }
 
     @Override
