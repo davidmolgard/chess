@@ -1,5 +1,8 @@
 package server.models;
 
+/**
+ * Authorization token to allow a user to access the database/use services
+ */
 public class AuthToken {
     private String authToken;
     private String username;

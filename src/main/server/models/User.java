@@ -1,5 +1,8 @@
 package server.models;
 
+/**
+ * Stores User data such as username, password, and email
+ */
 public class User {
     private String username;
     private String password;

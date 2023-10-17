@@ -2,6 +2,11 @@ package server.models;
 import chess.ChessBoard;
 import chess.ChessGame;
 
+/**
+ * Stores data for a single game
+ * two users can play at once, one controlling white pieces, the other black
+ * each game has a custom GameID and name
+ */
 public class Game {
     private int GameID;
     private String whiteUsername;
