@@ -1,8 +1,18 @@
 package service.loginClasses;
 
+/**
+ * requests login of a user
+ * includes username and password of user requesting login
+ */
 public class LoginRequest {
     private String username;
     private String password;
+
+    /**
+     * constructor
+     * @param username of user
+     * @param password of user
+     */
     public LoginRequest(String username, String password) {
         setUsername(username);
         setPassword(password);

@@ -3,6 +3,10 @@ package service.logoutClasses;
 import server.models.AuthToken;
 import service.loginClasses.LoginRequest;
 
+/**
+ * request to logout user
+ * includes Authorization token of user
+ */
 public class LogoutRequest {
     private AuthToken authToken;
 

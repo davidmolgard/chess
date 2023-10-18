@@ -1,10 +1,20 @@
 package service.registerClasses;
 
+/**
+ * registers new user in database
+ * includes username, password, and email of new user to be registered
+ */
 public class RegisterRequest {
     private String username;
     private String password;
     private String email;
 
+    /**
+     * constructor
+     * @param username of user
+     * @param password of user
+     * @param email of user
+     */
     public RegisterRequest(String username, String password, String email) {
         this.username = username;
         this.password = password;

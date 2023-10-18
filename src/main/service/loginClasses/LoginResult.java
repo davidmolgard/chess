@@ -2,17 +2,33 @@ package service.loginClasses;
 
 import server.models.AuthToken;
 
+/**
+ * result of request to login user
+ * includes username and Authorization token of user
+ * includes response code of success(200) or error code
+ * includes error message if one is provided
+ */
 public class LoginResult {
     private String message;
     private int responseCode;
     private String username;
     private AuthToken authToken;
 
+    /**
+     * constructor if error occurred
+     * @param responseCode error code
+     * @param errorMessage error message
+     */
     public LoginResult(int responseCode, String errorMessage) {
         message = errorMessage;
         this.responseCode = responseCode;
     }
 
+    /**
+     * constructor if successful
+     * @param username of user
+     * @param authToken of user
+     */
     public LoginResult(String username, AuthToken authToken) {
         this.username = username;
         this.authToken = authToken;
