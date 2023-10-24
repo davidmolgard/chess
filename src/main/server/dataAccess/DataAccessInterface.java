@@ -2,6 +2,7 @@ package server.dataAccess;
 
 import dataAccess.DataAccessException;
 import server.models.Game;
+import chess.ChessGame;
 
 import java.util.HashMap;
 
@@ -10,11 +11,12 @@ import java.util.HashMap;
  * Implementations for games, users, and authorization tokens
  */
 public interface DataAccessInterface {
+
     /**
      * Allows Data to be inserted to the database
      * @return ID number of the data inserted
      */
-    int insert();
+    int insert(Game game);
 
     /**
      * @param gameID of game to find
@@ -34,7 +36,7 @@ public interface DataAccessInterface {
      * @param username of user looking to join the game
      * @throws DataAccessException if user or game not able to be found
      */
-    void claimSpot(int gameID, String username) throws DataAccessException;
+    void claimSpot(int gameID, String username, ChessGame.TeamColor color) throws DataAccessException;
 
     /**
      * renames a game
@@ -42,17 +44,17 @@ public interface DataAccessInterface {
      * @param newName of game
      * @throws DataAccessException if game cannot be found
      */
-    void updateGame(int gameID, String newName) throws DataAccessException;
+    void updateGameName(int gameID, String newName) throws DataAccessException;
 
     /**
      * removes a game
      * @param gameID of game to remove
      * @throws DataAccessException if game cannot be found
      */
-    void remove(int gameID) throws DataAccessException;
+    void removeGame(int gameID) throws DataAccessException;
 
     /**
      * clears all data in implementation
      */
-    void clear();
+    void clearGames();
 }
