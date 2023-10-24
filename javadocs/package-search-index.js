@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"server.dataAccess"},{"l":"server.models"},{"l":"service"},{"l":"service.clearClasses"},{"l":"service.createClasses"},{"l":"service.joinClasses"},{"l":"service.listClasses"},{"l":"service.loginClasses"},{"l":"service.logoutClasses"},{"l":"service.registerClasses"}];updateSearchResults();

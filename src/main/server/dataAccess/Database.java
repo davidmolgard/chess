@@ -54,10 +54,12 @@ public interface Database {
      * clears hashmap of authorization tokens
      */
     void clearAuthTokens();
-    void addGame(Game game);
-    void addUser(User user);
-    void addAuthToken(AuthToken authToken);
-    Game getGame(int GameID);
+    void clearAll();
+    void addGame(Game game, int gameID);
+    void addUser(User user, String username);
+    void addAuthToken(AuthToken authToken, String username);
+    Game getGame(int gameID);
     User getUser(String username);
-    AuthToken getAuthToken(String username);
+    void removeGame(int gameID);
+    void renameGame(int gameID, String newName);
 }
