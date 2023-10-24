@@ -7,9 +7,10 @@ import server.models.User;
 import java.util.HashMap;
 
 public class InternalDatabase implements Database{
-    HashMap<Integer, Game> games = new HashMap<>();
-    HashMap<AuthToken, String> authTokens = new HashMap<>();
-    HashMap<String, User> users = new HashMap<>();
+    private HashMap<Integer, Game> games = new HashMap<>();
+    private HashMap<AuthToken, String> authTokens = new HashMap<>();
+    private HashMap<String, User> users = new HashMap<>();
+    private int gameIDGenerator = 1000;
     @Override
     public String getGames() {
         return games.toString();
@@ -100,5 +101,15 @@ public class InternalDatabase implements Database{
 
     public void removeGame(int gameID) {
         games.remove(gameID);
+    }
+
+    @Override
+    public void removeUser(String username) {
+        users.remove(username);
+    }
+
+    public int getNewGameID() {
+        gameIDGenerator++;
+        return gameIDGenerator;
     }
 }

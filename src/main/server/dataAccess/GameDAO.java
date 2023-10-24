@@ -5,9 +5,7 @@ import server.models.Game;
 import chess.ChessGame;
 
 public class GameDAO implements DataAccessInterface{
-
-    Database database = new InternalDatabase();
-    int gameIDGenerator = 1000;
+    private Database database = new InternalDatabase();
     public GameDAO() {
 
     }
@@ -18,9 +16,9 @@ public class GameDAO implements DataAccessInterface{
 
     @Override
     public int insert(Game game) {
-        database.addGame(game,gameIDGenerator);
-        gameIDGenerator++;
-        return gameIDGenerator-1;
+        int gameID = database.getNewGameID();
+        database.addGame(game,gameID);
+        return gameID;
     }
 
     @Override

@@ -61,5 +61,7 @@ public interface Database {
     Game getGame(int gameID);
     User getUser(String username);
     void removeGame(int gameID);
+    void removeUser(String username);
     void renameGame(int gameID, String newName);
+    int getNewGameID();
 }
