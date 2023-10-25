@@ -26,6 +26,8 @@ public class UserDAO {
         }
     }
 
-
+    public String getUsers() {
+        return database.getUsers();
+    }
 
 }
