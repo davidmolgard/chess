@@ -29,4 +29,10 @@ public class AuthDAO {
     public void removeAuthToken(AuthToken authToken) {
         database.removeAuthToken(authToken);
     }
+
+    public boolean hasAuthToken(String username) {
+        return database.hasAuthToken(username);
+    }
+
+    public String getUsername(AuthToken authToken) { return database.getUsername(authToken); }
 }

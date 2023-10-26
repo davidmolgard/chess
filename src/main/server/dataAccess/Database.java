@@ -36,7 +36,8 @@ public interface Database {
     boolean isAuthorized(AuthToken authToken);
 
     /**
-     * @param authToken to be removed from the Hashmap
+     *
+     * @param authToken to remove
      */
     void removeAuthToken(AuthToken authToken);
 
@@ -64,4 +65,8 @@ public interface Database {
     void removeUser(String username);
     void renameGame(int gameID, String newName);
     int getNewGameID();
+
+    boolean hasAuthToken(String username);
+
+    String getUsername(AuthToken authToken);
 }

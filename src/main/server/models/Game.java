@@ -11,7 +11,7 @@ public class Game {
     private int GameID;
     private String whiteUsername;
     private String blackUsername;
-    private String gameName;
+    private String gameName = "";
     private ChessGame game;
     public int getGameID() {
         return GameID;

@@ -108,8 +108,17 @@ public class InternalDatabase implements Database{
         users.remove(username);
     }
 
+    @Override
     public int getNewGameID() {
         gameIDGenerator++;
         return gameIDGenerator;
     }
+
+    @Override
+    public boolean hasAuthToken(String username) {
+        return authTokens.containsValue(username);
+    }
+
+    @Override
+    public String getUsername(AuthToken authToken) { return authTokens.get(authToken); }
 }
