@@ -4,8 +4,6 @@ import dataAccess.DataAccessException;
 import server.models.Game;
 import chess.ChessGame;
 
-import java.util.HashMap;
-
 /**
  * DataAccessInterface allows for data to be inserted and returned from the database
  * Implementations for games, users, and authorization tokens
@@ -28,7 +26,7 @@ public interface DataAccessInterface {
     /**
      * @return String representation of data type being accessed
      */
-    HashMap<Integer, Game> findAll();
+    Game[] findAll();
 
     /**
      * claims a spot in the game for the user provided

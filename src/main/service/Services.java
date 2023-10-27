@@ -60,6 +60,7 @@ public class Services {
         else {
             GameDAO gameDAO = new GameDAO(database);
             Game game = new Game();
+            game.setGameName(req.getGameName());
             return new CreateResult(gameDAO.insert(game));
         }
     }
@@ -79,7 +80,7 @@ public class Services {
         }
         else {
             try {
-                gameDAO.claimSpot(req.getGameID(), req.getAuthToken().getUsername(), req.getColor());
+                gameDAO.claimSpot(req.getGameID(), authDAO.getUsername(req.getAuthToken()), req.getColor());
             } catch (DataAccessException ex) {
                 return new JoinResult(Forbidden, "Error: already taken");
             }

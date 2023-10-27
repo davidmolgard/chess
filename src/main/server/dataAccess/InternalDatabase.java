@@ -12,8 +12,15 @@ public class InternalDatabase implements Database{
     private HashMap<String, User> users = new HashMap<>();
     private int gameIDGenerator = 1000;
     @Override
-    public HashMap<Integer, Game> getGames() {
-        return games;
+    public Game[] getGames() {
+        Game[] gamesArray = new Game[games.size()];
+        int i = 0;
+        for (int key : games.keySet()) {
+            games.get(key).setGameID(key);
+            gamesArray[i] = (games.get(key));
+            i++;
+        }
+        return gamesArray;
     }
 
     @Override
@@ -61,6 +68,7 @@ public class InternalDatabase implements Database{
 
     @Override
     public void addGame(Game game, int gameID) {
+        game.setGameID(gameID);
         games.put(gameID, game);
     }
 

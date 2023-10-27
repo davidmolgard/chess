@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import server.dataAccess.Database;
 import server.dataAccess.InternalDatabase;
 import server.models.AuthToken;
+import server.models.Game;
 import service.*;
 import service.clearClasses.ClearRequest;
 import service.clearClasses.ClearResult;
@@ -29,7 +30,8 @@ public class Server {
     private Services services = new Services(database);
 
     public static void main(String[] args) {
-        new Server().run();
+        Server server = new Server();
+        server.run();
     }
 
     private void run() {
@@ -38,11 +40,14 @@ public class Server {
 
         Spark.delete("/db", this::clear);
         Spark.post("/user", this::register);
-        Spark.post("/session", this::login);
         Spark.delete("/session", this::logout);
+        Spark.delete("/test", (req, res) -> "This is a test route");
+        Spark.post("/session", this::login);
         Spark.get("/game", this::listGames);
         Spark.post("/game", this::createGame);
         Spark.put("/game", this::joinGame);
+
+        Spark.init();
     }
 
     private Object clear(Request req, Response res) {
@@ -51,7 +56,7 @@ public class Server {
         clearResult.setMessage("test");
         if (clearResult.getResponseCode() == services.OK) {
             res.status(services.OK);
-            return null;
+            return new Gson().toJson(Map.of("", ""));
         } else {
             res.status(clearResult.getResponseCode());
             return new Gson().toJson(Map.of("message", clearResult.getMessage()));
@@ -69,7 +74,7 @@ public class Server {
             RegisterResult registerResult = services.register(registerRequest);
             res.status(registerResult.getResponseCode());
             if (registerResult.getResponseCode() == 200) {
-                return new Gson().toJson(Map.of("username", registerResult.getUsername(), "authToken", registerResult.getAuthToken()));
+                return new Gson().toJson(Map.of("username", registerResult.getUsername(), "authToken", registerResult.getAuthToken().getAuthToken()));
             } else {
                 return new Gson().toJson(Map.of("message", registerResult.getMessage()));
             }
@@ -88,7 +93,7 @@ public class Server {
             LoginResult loginResult = services.login(loginRequest);
             res.status(loginResult.getResponseCode());
             if (loginResult.getResponseCode() == services.OK) {
-                return new Gson().toJson(Map.of("username", loginResult.getUsername(), "authToken", loginResult.getAuthToken()));
+                return new Gson().toJson(Map.of("username", loginResult.getUsername(), "authToken", loginResult.getAuthToken().getAuthToken()));
             } else {
                 return new Gson().toJson(Map.of("message", loginResult.getMessage()));
             }
@@ -107,7 +112,7 @@ public class Server {
             LogoutResult logoutResult = services.logout(logoutRequest);
             res.status(logoutResult.getResponseCode());
             if (logoutResult.getResponseCode() == services.OK) {
-                return null;
+                return new Gson().toJson(Map.of("", ""));
             } else {
                 return new Gson().toJson(Map.of("message", logoutResult.getMessage()));
             }
@@ -186,7 +191,7 @@ public class Server {
             JoinResult joinResult = services.join(joinRequest);
             res.status(joinResult.getResponseCode());
             if (joinResult.getResponseCode() == services.OK) {
-                return res;
+                return new Gson().toJson(Map.of("", ""));
             }
             else {
                 return new Gson().toJson(Map.of("message", joinResult.getMessage()));

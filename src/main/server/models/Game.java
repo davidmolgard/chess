@@ -1,6 +1,7 @@
 package server.models;
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessGameImpl;
 
 /**
  * Stores data for a single game
@@ -8,17 +9,18 @@ import chess.ChessGame;
  * each game has a custom GameID and name
  */
 public class Game {
-    private int GameID;
+    private int gameID;
     private String whiteUsername;
     private String blackUsername;
     private String gameName = "";
-    private ChessGame game;
+    private ChessGame game = new ChessGameImpl();
+
     public int getGameID() {
-        return GameID;
+        return gameID;
     }
 
     public void setGameID(int gameID) {
-        GameID = gameID;
+        this.gameID = gameID;
     }
 
     public String getWhiteUsername() {

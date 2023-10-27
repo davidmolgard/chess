@@ -19,7 +19,7 @@ public interface Database {
     /**
      * @return String representation of the Hashmap storing the games
      */
-    HashMap<Integer, Game> getGames();
+    Game[] getGames();
     /**
      * @return String representation of the Hashmap storing the users
      */

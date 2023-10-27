@@ -2,6 +2,7 @@ package service.listClasses;
 
 import server.models.Game;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -13,7 +14,7 @@ public class ListResult {
     private int responseCode;
     private String message;
 
-    private HashMap<Integer, Game> games;
+    private Game[] games;
 
     /**
      * constructor
@@ -25,16 +26,16 @@ public class ListResult {
         this.message = message;
     }
 
-    public ListResult(HashMap<Integer, Game> games) {
+    public ListResult(Game[] games) {
         this.games = games;
         responseCode = 200;
     }
 
-    public HashMap<Integer, Game> getGames() {
+    public Game[] getGames() {
         return games;
     }
 
-    public void setGames(HashMap<Integer, Game> games) {
+    public void setGames(Game[] games) {
         this.games = games;
     }
 
