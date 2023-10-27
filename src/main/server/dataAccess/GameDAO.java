@@ -4,6 +4,8 @@ import dataAccess.DataAccessException;
 import server.models.Game;
 import chess.ChessGame;
 
+import java.util.HashMap;
+
 public class GameDAO implements DataAccessInterface{
     private Database database = new InternalDatabase();
     public GameDAO() {
@@ -27,7 +29,7 @@ public class GameDAO implements DataAccessInterface{
     }
 
     @Override
-    public String findAll() {
+    public HashMap<Integer, Game> findAll() {
         return database.getGames();
     }
 

@@ -40,7 +40,7 @@ public class Services {
      * @param req @see ClearRequest
      * @return @see ClearResult (includes error code if error occurred)
      */
-    ClearResult clear(ClearRequest req) {
+    public ClearResult clear(ClearRequest req) {
         database.clearAll();
         return new ClearResult();
     }
@@ -49,7 +49,7 @@ public class Services {
      * @param req @see CreateRequest
      * @return @see CreateResult (includes error code if error occurred)
      */
-    CreateResult create(CreateRequest req) {
+    public CreateResult create(CreateRequest req) {
         AuthDAO authDAO = new AuthDAO(database);
         if (req.getAuthToken() == null) {
             return new CreateResult(BadRequest, "Error: bad request");
@@ -68,7 +68,7 @@ public class Services {
      * @param req @see JoinRequest
      * @return @see JoinResult (includes error code if error occurred)
      */
-    JoinResult join(JoinRequest req) {
+    public JoinResult join(JoinRequest req) {
         GameDAO gameDAO = new GameDAO(database);
         AuthDAO authDAO = new AuthDAO(database);
         if (!authDAO.isAuthorized(req.getAuthToken())) {
@@ -91,14 +91,14 @@ public class Services {
      * @param req @see ListRequest
      * @return @see ListResult (includes error code if error occurred)
      */
-    ListResult list(ListRequest req) {
+    public ListResult list(ListRequest req) {
         AuthDAO authDAO = new AuthDAO(database);
         GameDAO gameDAO = new GameDAO(database);
         if (!authDAO.isAuthorized(req.getAuthToken())) {
             return new ListResult(Unauthorized, "Error: unauthorized");
         }
         else {
-            return new ListResult(OK, gameDAO.findAll());
+            return new ListResult(gameDAO.findAll());
         }
     }
     /**
@@ -106,7 +106,7 @@ public class Services {
      * @param req @see LoginRequest
      * @return @see LoginResult (includes error code if error occurred)
      */
-    LoginResult login(LoginRequest req) {
+    public LoginResult login(LoginRequest req) {
         UserDAO userDAO = new UserDAO(database);
         AuthDAO authDAO = new AuthDAO(database);
         if (userDAO.getUser(req.getUsername()) == null) {
@@ -126,7 +126,7 @@ public class Services {
      * @param req @see LogoutRequest
      * @return @see LogoutResult (includes error code if error occurred)
      */
-    LogoutResult logout(LogoutRequest req) {
+    public LogoutResult logout(LogoutRequest req) {
         AuthDAO authDAO = new AuthDAO(database);
         if (!authDAO.isAuthorized(req.getAuthToken())) {
             return new LogoutResult(Unauthorized, "Error: unauthorized");
@@ -139,7 +139,7 @@ public class Services {
      * @param req @see RegisterRequest
      * @return @see RegisterResult (includes error code if error occurred)
      */
-    RegisterResult register(RegisterRequest req) {
+    public RegisterResult register(RegisterRequest req) {
         UserDAO userDAO = new UserDAO(database);
         AuthDAO authDAO = new AuthDAO(database);
         if (userDAO.getUser(req.getUsername()) != null) {

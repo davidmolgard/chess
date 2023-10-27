@@ -8,12 +8,12 @@ import java.util.HashMap;
 
 public class InternalDatabase implements Database{
     private HashMap<Integer, Game> games = new HashMap<>();
-    private HashMap<AuthToken, String> authTokens = new HashMap<>();
+    private HashMap<String, String> authTokens = new HashMap<>();
     private HashMap<String, User> users = new HashMap<>();
     private int gameIDGenerator = 1000;
     @Override
-    public String getGames() {
-        return games.toString();
+    public HashMap<Integer, Game> getGames() {
+        return games;
     }
 
     @Override
@@ -28,12 +28,12 @@ public class InternalDatabase implements Database{
 
     @Override
     public boolean isAuthorized(AuthToken authToken) {
-        return authTokens.containsKey(authToken);
+        return authTokens.containsKey(authToken.getAuthToken());
     }
 
     @Override
     public void removeAuthToken(AuthToken authToken) {
-        authTokens.remove(authToken);
+        authTokens.remove(authToken.getAuthToken());
     }
 
 
@@ -71,7 +71,7 @@ public class InternalDatabase implements Database{
 
     @Override
     public void addAuthToken(AuthToken authToken, String username) {
-        authTokens.put(authToken, username);
+        authTokens.put(authToken.getAuthToken(), username);
     }
 
     @Override
@@ -120,5 +120,5 @@ public class InternalDatabase implements Database{
     }
 
     @Override
-    public String getUsername(AuthToken authToken) { return authTokens.get(authToken); }
+    public String getUsername(AuthToken authToken) { return authTokens.get(authToken.getAuthToken()); }
 }

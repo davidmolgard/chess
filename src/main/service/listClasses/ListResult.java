@@ -1,5 +1,9 @@
 package service.listClasses;
 
+import server.models.Game;
+
+import java.util.HashMap;
+
 /**
  * result of request to list games
  * includes response code of success(200) or error code
@@ -9,14 +13,29 @@ public class ListResult {
     private int responseCode;
     private String message;
 
+    private HashMap<Integer, Game> games;
+
     /**
      * constructor
-     * @param responseCode 200 if success, otherwise error code
-     * @param message error message if provided, otherwise list of games
+     * @param responseCode error code
+     * @param message error message
      */
     public ListResult(int responseCode, String message) {
         this.responseCode = responseCode;
         this.message = message;
+    }
+
+    public ListResult(HashMap<Integer, Game> games) {
+        this.games = games;
+        responseCode = 200;
+    }
+
+    public HashMap<Integer, Game> getGames() {
+        return games;
+    }
+
+    public void setGames(HashMap<Integer, Game> games) {
+        this.games = games;
     }
 
     public int getResponseCode() {

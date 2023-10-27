@@ -28,7 +28,7 @@ public interface DataAccessInterface {
     /**
      * @return String representation of data type being accessed
      */
-    String findAll();
+    HashMap<Integer, Game> findAll();
 
     /**
      * claims a spot in the game for the user provided
