@@ -5,12 +5,12 @@ import server.models.Game;
 import chess.ChessGame;
 
 public class GameDAO implements DataAccessInterface{
-    private Database database = new InternalDatabase();
+    private DatabaseInterface database = new InternalDatabase();
     public GameDAO() {
 
     }
 
-    public GameDAO(Database database) {
+    public GameDAO(DatabaseInterface database) {
         this.database = database;
     }
 

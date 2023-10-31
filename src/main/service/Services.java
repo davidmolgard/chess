@@ -20,8 +20,6 @@ import service.logoutClasses.LogoutResult;
 import service.registerClasses.RegisterRequest;
 import service.registerClasses.RegisterResult;
 
-import java.util.Objects;
-
 /**
  * Services contains methods for all services offered by the API
  */
@@ -31,8 +29,8 @@ public class Services {
     public final int Unauthorized = 401;
     public final int Forbidden = 403;
     public final int ServerError = 500;
-    Database database = new InternalDatabase();
-    public Services(Database database) {
+    DatabaseInterface database = new InternalDatabase();
+    public Services(DatabaseInterface database) {
         this.database = database;
     }
     /**

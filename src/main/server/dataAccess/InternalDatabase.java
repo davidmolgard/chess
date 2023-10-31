@@ -6,7 +6,7 @@ import server.models.User;
 
 import java.util.HashMap;
 
-public class InternalDatabase implements Database{
+public class InternalDatabase implements DatabaseInterface {
     private HashMap<Integer, Game> games = new HashMap<>();
     private HashMap<String, String> authTokens = new HashMap<>();
     private HashMap<String, User> users = new HashMap<>();

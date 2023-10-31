@@ -4,12 +4,12 @@ import dataAccess.DataAccessException;
 import server.models.User;
 
 public class UserDAO {
-    private Database database = new InternalDatabase();
+    private DatabaseInterface database = new InternalDatabase();
     public UserDAO() {
 
     }
 
-    public UserDAO(Database database) {
+    public UserDAO(DatabaseInterface database) {
         this.database = database;
     }
 

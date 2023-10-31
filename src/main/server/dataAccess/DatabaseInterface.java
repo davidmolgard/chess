@@ -11,7 +11,7 @@ import java.util.HashMap;
  * Stores Hashmaps of Games, Users, and AuthTokens in Hashmaps
  * Allows the Data to be stored in a Database or in memory according to the implementation
  */
-public interface Database {
+public interface DatabaseInterface {
     HashMap<Integer, Game> games = new HashMap<>();
     HashMap<String, User> users = new HashMap<>();
     HashMap<String, AuthToken> authTokens = new HashMap<>();

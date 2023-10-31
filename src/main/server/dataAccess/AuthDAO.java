@@ -5,13 +5,13 @@ import server.models.AuthToken;
 import java.util.UUID;
 
 public class AuthDAO {
-    private Database database = new InternalDatabase();
+    private DatabaseInterface database = new InternalDatabase();
 
     public AuthDAO() {
 
     }
 
-    public AuthDAO(Database database) {
+    public AuthDAO(DatabaseInterface database) {
         this.database = database;
     }
 

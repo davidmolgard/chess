@@ -2,11 +2,9 @@ package passoffTests.serverTests;
 
 import org.junit.jupiter.api.*;
 import chess.*;
-import server.*;
-import server.dataAccess.Database;
+import server.dataAccess.DatabaseInterface;
 import server.dataAccess.InternalDatabase;
 import server.models.AuthToken;
-import server.models.Game;
 import service.*;
 import service.clearClasses.ClearRequest;
 import service.createClasses.CreateRequest;
@@ -21,12 +19,11 @@ import service.logoutClasses.LogoutRequest;
 import service.logoutClasses.LogoutResult;
 import service.registerClasses.RegisterRequest;
 import service.registerClasses.RegisterResult;
-import spark.utils.Assert;
 
 
 public class ServiceTests {
 
-    Database database = new InternalDatabase();
+    DatabaseInterface database = new InternalDatabase();
     Services services = new Services(database);
     AuthToken authToken;
     @Test
