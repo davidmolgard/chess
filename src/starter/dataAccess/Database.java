@@ -1,12 +1,15 @@
 package dataAccess;
 
-import com.google.gson.Gson;
+import chess.*;
+import com.google.gson.*;
 import server.dataAccess.DatabaseInterface;
 import server.models.AuthToken;
 import server.models.Game;
 import server.models.User;
 
+import java.lang.reflect.Type;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Objects;
 
 /**
@@ -22,11 +25,42 @@ public class Database implements DatabaseInterface {
     private static final String CONNECTION_URL = "jdbc:mysql://localhost:3306/" + DB_NAME;
 
     private int gameIDGenerator = 1000;
-
+    private GsonBuilder gameBuilder = new GsonBuilder();
     public Database() {
         InitializeDatabase();
     }
 
+    public class GameAdapter implements JsonDeserializer<ChessGame> {
+        @Override
+        public ChessGame deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+            GsonBuilder builder = new GsonBuilder();
+            builder.registerTypeAdapter(ChessBoard.class, new BoardAdapter());
+            return builder.create().fromJson(jsonElement, ChessGameImpl.class);
+        }
+    }
+
+    public class BoardAdapter implements JsonDeserializer<ChessBoard> {
+
+        @Override
+        public ChessBoard deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+            GsonBuilder builder = new GsonBuilder();
+            builder.registerTypeAdapter(ChessPiece.class, new PieceAdapter());
+            return builder.create().fromJson(jsonElement, ChessBoardImpl.class);
+        }
+    }
+
+    public class PieceAdapter implements JsonDeserializer<ChessPiece> {
+
+        @Override
+        public ChessPiece deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+            return new Gson().fromJson(jsonElement, ChessPieceImpl.class);
+        }
+    }
+    private void createGameBuilder() {
+        gameBuilder.registerTypeAdapter(ChessGame.class, new GameAdapter());
+        gameBuilder.registerTypeAdapter(ChessBoard.class, new BoardAdapter());
+        gameBuilder.registerTypeAdapter(ChessPiece.class, new PieceAdapter());
+    }
     /**
      * Gets a connection to the database.
      *
@@ -103,7 +137,32 @@ public class Database implements DatabaseInterface {
 
     @Override
     public Game[] getGames() {
-        return new Game[0];
+        try (Connection conn = getConnection()) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement("SELECT game FROM games")) {
+                try(ResultSet rs = preparedStatement.executeQuery()) {
+                    ArrayList<Game> gameArray = new ArrayList<>();
+                    String json = null;
+                    createGameBuilder();
+                    while (rs.next()) {
+                        json = rs.getString("game");
+                        if (json != null) {
+                            gameArray.add(gameBuilder.create().fromJson(json, Game.class));
+                        }
+                    }
+                    if (gameArray.isEmpty()) {
+                        return null;
+                    }
+                    return gameArray.toArray(Game[]::new);
+                }
+            }
+        }
+        catch (DataAccessException ex) {
+            System.out.println(ex.getMessage());
+        }
+        catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+        return null;
     }
 
     @Override
@@ -220,7 +279,30 @@ public class Database implements DatabaseInterface {
     }
 
     @Override
-    public Game getGame(int gameID) { //FIXME
+    public Game getGame(int gameID) {
+        try (Connection conn = getConnection()) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement("SELECT game FROM games WHERE gameID=?")) {
+                preparedStatement.setInt(1, gameID);
+                try(ResultSet rs = preparedStatement.executeQuery()) {
+                    String json = null;
+                    while (rs.next()) {
+                        json = rs.getString("game");
+                    }
+                    if (json == null) {
+                        return null;
+                    }
+                    createGameBuilder();
+                    Game game = gameBuilder.create().fromJson(json, Game.class);
+                    return game;
+                }
+            }
+        }
+        catch (DataAccessException ex) {
+            System.out.println(ex.getMessage());
+        }
+        catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
         return null;
     }
 

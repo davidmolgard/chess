@@ -14,7 +14,7 @@ public interface DataAccessInterface {
      * Allows Data to be inserted to the database
      * @return ID number of the data inserted
      */
-    int insert(Game game);
+    int insert(Game game) throws DataAccessException;
 
     /**
      * @param gameID of game to find

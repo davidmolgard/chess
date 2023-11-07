@@ -59,7 +59,13 @@ public class Services {
             GameDAO gameDAO = new GameDAO(database);
             Game game = new Game();
             game.setGameName(req.getGameName());
-            return new CreateResult(gameDAO.insert(game));
+            int gameID = 0;
+            try {
+                gameID = gameDAO.insert(game);
+            } catch (DataAccessException e) {
+                return new CreateResult(BadRequest, "Error: bad request");
+            }
+            return new CreateResult(gameID);
         }
     }
     /**

@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 public class ChessPieceImpl implements ChessPiece{
     private ChessGame.TeamColor teamColor;
@@ -399,6 +400,19 @@ public class ChessPieceImpl implements ChessPiece{
             currCol--;
         }
         return validMoves;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessPieceImpl that = (ChessPieceImpl) o;
+        return teamColor == that.teamColor && pieceType == that.pieceType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(teamColor, pieceType);
     }
 }
 

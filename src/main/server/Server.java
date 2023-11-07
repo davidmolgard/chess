@@ -2,6 +2,7 @@ package server;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
+import dataAccess.Database;
 import server.dataAccess.DatabaseInterface;
 import server.dataAccess.InternalDatabase;
 import server.models.AuthToken;
@@ -25,7 +26,7 @@ import java.util.*;
 
 
 public class Server {
-    private DatabaseInterface database = new InternalDatabase();
+    private DatabaseInterface database = new Database();
     private Services services = new Services(database);
 
     public static void main(String[] args) {

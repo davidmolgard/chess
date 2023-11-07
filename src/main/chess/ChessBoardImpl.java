@@ -1,5 +1,8 @@
 package chess;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 import static chess.ChessPiece.PieceType.PAWN;
 
 public class ChessBoardImpl implements ChessBoard{
@@ -130,5 +133,20 @@ public class ChessBoardImpl implements ChessBoard{
         chessBoard[3][7] = new ChessPieceImpl(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN);
         chessBoard[4][0] = new ChessPieceImpl(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING);
         chessBoard[4][7] = new ChessPieceImpl(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessBoardImpl that = (ChessBoardImpl) o;
+        return (Arrays.deepEquals(chessBoard, that.chessBoard));
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(enPassantPossible);
+        result = 31 * result + Arrays.deepHashCode(chessBoard);
+        return result;
     }
 }

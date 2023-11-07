@@ -12,7 +12,10 @@ public class GameDAO implements DataAccessInterface{
     }
 
     @Override
-    public int insert(Game game) {
+    public int insert(Game game) throws DataAccessException {
+        if (game.getGameID() > 0) {
+            throw new DataAccessException("game already added");
+        }
         int gameID = database.getNewGameID();
         game.setGameID(gameID);
         database.addGame(game,gameID);
@@ -21,6 +24,9 @@ public class GameDAO implements DataAccessInterface{
 
     @Override
     public Game find(int gameID) throws DataAccessException {
+        if (database.getGame(gameID) == null) {
+            throw new DataAccessException("Game not found");
+        }
         return database.getGame(gameID);
     }
 
@@ -40,7 +46,9 @@ public class GameDAO implements DataAccessInterface{
                     throw new DataAccessException("White Player already present in game " + gameID);
                 }
                 else {
-                    database.getGame(gameID).setWhiteUsername(username);
+                    Game tempGame = database.getGame(gameID);
+                    tempGame.setWhiteUsername(username);
+                    updateGame(gameID, tempGame);
                 }
             }
             if (color == ChessGame.TeamColor.BLACK) {
@@ -48,7 +56,9 @@ public class GameDAO implements DataAccessInterface{
                     throw new DataAccessException("Black Player already present in game " + gameID);
                 }
                 else {
-                    database.getGame(gameID).setBlackUsername(username);
+                    Game tempGame = database.getGame(gameID);
+                    tempGame.setBlackUsername(username);
+                    updateGame(gameID, tempGame);
                 }
             }
         }
