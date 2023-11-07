@@ -12,6 +12,9 @@ public class AuthDAO {
         this.database = database;
     }
 
+    public void clearAuthTokens() {
+        database.clearAuthTokens();
+    }
     public boolean isAuthorized(AuthToken authToken) {
         return database.isAuthorized(authToken);
     }
@@ -19,6 +22,9 @@ public class AuthDAO {
     public AuthToken addAuthToken(String username) {
         AuthToken authToken = new AuthToken();
         authToken.setAuthToken(UUID.randomUUID().toString());
+        if (username == null) {
+            return null;
+        }
         database.addAuthToken(authToken, username);
         return authToken;
     }
@@ -28,5 +34,10 @@ public class AuthDAO {
     }
 
 
-    public String getUsername(AuthToken authToken) { return database.getUsername(authToken); }
+    public String getUsername(AuthToken authToken) {
+        if (authToken == null) {
+            return null;
+        }
+        return database.getUsername(authToken);
+    }
 }

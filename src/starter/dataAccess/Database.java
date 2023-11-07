@@ -114,7 +114,7 @@ public class Database implements DatabaseInterface {
     @Override
     public void clearGames() {
         try (Connection conn = getConnection()) {
-            try (PreparedStatement preparedStatement = conn.prepareStatement("TRUNCATE TABLE IF EXISTS games")) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement("TRUNCATE TABLE games")) {
                 preparedStatement.executeUpdate();
             }
         }
@@ -129,7 +129,7 @@ public class Database implements DatabaseInterface {
     @Override
     public void clearUsers() {
         try (Connection conn = getConnection()) {
-            try (PreparedStatement preparedStatement = conn.prepareStatement("TRUNCATE TABLE IF EXISTS users")) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement("TRUNCATE TABLE users")) {
                 preparedStatement.executeUpdate();
             }
         }
@@ -144,7 +144,7 @@ public class Database implements DatabaseInterface {
     @Override
     public void clearAuthTokens() {
         try (Connection conn = getConnection()) {
-            try (PreparedStatement preparedStatement = conn.prepareStatement("TRUNCATE TABLE IF EXISTS authTokens")) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement("TRUNCATE TABLE authTokens")) {
                 preparedStatement.executeUpdate();
             }
         }
