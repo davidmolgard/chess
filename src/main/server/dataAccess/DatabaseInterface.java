@@ -1,5 +1,6 @@
 package server.dataAccess;
 
+import dataAccess.DataAccessException;
 import server.models.AuthToken;
 import server.models.Game;
 import server.models.User;
@@ -49,7 +50,7 @@ public interface DatabaseInterface {
     void clearAuthTokens();
     void clearAll();
     void addGame(Game game, int gameID);
-    void addUser(User user, String username);
+    void addUser(User user, String username) throws DataAccessException;
     void addAuthToken(AuthToken authToken, String username);
     Game getGame(int gameID);
     User getUser(String username);

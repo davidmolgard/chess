@@ -149,7 +149,11 @@ public class Services {
         }
         else {
             AuthToken newAuthToken = authDAO.addAuthToken(req.getUsername());
-            userDAO.insertUser(new User(req.getUsername(), req.getPassword(), req.getEmail()), req.getUsername());
+            try {
+                userDAO.insertUser(new User(req.getUsername(), req.getPassword(), req.getEmail()), req.getUsername());
+            } catch (DataAccessException e) {
+                throw new RuntimeException(e);
+            }
             return new RegisterResult(req.getUsername(), newAuthToken);
         }
     }

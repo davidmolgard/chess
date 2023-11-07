@@ -7,6 +7,7 @@ import server.models.Game;
 import server.models.User;
 
 import java.sql.*;
+import java.util.Objects;
 
 /**
  * Responsible for creating connections to the database. Connections should be closed after use, either by calling
@@ -181,7 +182,10 @@ public class Database implements DatabaseInterface {
     }
 
     @Override
-    public void addUser(User user, String username) {
+    public void addUser(User user, String username) throws DataAccessException {
+        if (!Objects.equals(user.getUsername(), username)) {
+            throw new DataAccessException("Username did not match user");
+        }
         try (Connection conn = getConnection()) {
             try (PreparedStatement preparedStatement = conn.prepareStatement("INSERT INTO users (username, password, email) VALUES(?, ?, ?)")) {
                 preparedStatement.setString(1, user.getUsername());

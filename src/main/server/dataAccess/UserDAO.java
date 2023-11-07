@@ -10,7 +10,7 @@ public class UserDAO {
         this.database = database;
     }
 
-    public void insertUser(User user, String username) {
+    public void insertUser(User user, String username) throws DataAccessException {
         database.addUser(user, username);
     }
 
@@ -25,6 +25,10 @@ public class UserDAO {
 
     public User getUser(String username) {
         return database.getUser(username);
+    }
+
+    public void clearUsers() {
+        database.clearUsers();
     }
 
 }

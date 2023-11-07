@@ -1,10 +1,12 @@
 package server.dataAccess;
 
+import dataAccess.DataAccessException;
 import server.models.AuthToken;
 import server.models.Game;
 import server.models.User;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 public class InternalDatabase implements DatabaseInterface {
     private HashMap<Integer, Game> games = new HashMap<>();
@@ -71,7 +73,10 @@ public class InternalDatabase implements DatabaseInterface {
     }
 
     @Override
-    public void addUser(User user, String username) {
+    public void addUser(User user, String username) throws DataAccessException {
+        if (!Objects.equals(user.getUsername(), username)) {
+            throw new DataAccessException("Username did not match user");
+        }
         users.put(username, user);
     }
 
