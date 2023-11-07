@@ -320,8 +320,20 @@ public class Database implements DatabaseInterface {
     }
 
     @Override
-    public void renameGame(int gameID, String newName) { //FIXME
-
+    public void updateGame(int gameID, Game game) {
+        try (Connection conn = getConnection()) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement("UPDATE games SET game=? WHERE gameID=?")) {
+                preparedStatement.setString(1, new Gson().toJson(game));
+                preparedStatement.setInt(2, gameID);
+                preparedStatement.executeUpdate();
+            }
+        }
+        catch (DataAccessException ex) {
+            System.out.println(ex.getMessage());
+        }
+        catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 
     @Override
