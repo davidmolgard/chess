@@ -20,14 +20,6 @@ public interface DatabaseInterface {
      * @return String representation of the Hashmap storing the games
      */
     Game[] getGames();
-    /**
-     * @return String representation of the Hashmap storing the users
-     */
-    String getUsers();
-    /**
-     * @return String representation of the Hashmap storing the Authorization Tokens
-     */
-    String getAuthTokens();
 
     /**
      * @param authToken of user to see if they are authorized

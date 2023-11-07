@@ -106,18 +106,9 @@ public class Database implements DatabaseInterface {
     }
 
     @Override
-    public String getUsers() {
-        return null;
-    }
-
-    @Override
-    public String getAuthTokens() {
-        return null;
-    }
-
-    @Override
     public boolean isAuthorized(AuthToken authToken) {
-        return false;
+        String username = getUsername(authToken);
+        return username != null;
     }
 
     @Override
@@ -225,37 +216,111 @@ public class Database implements DatabaseInterface {
     }
 
     @Override
-    public Game getGame(int gameID) {
+    public Game getGame(int gameID) { //FIXME
         return null;
     }
 
     @Override
     public User getUser(String username) {
+        try (Connection conn = getConnection()) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement("SELECT password, email FROM users WHERE username=?")) {
+                preparedStatement.setString(1, username);
+                try(ResultSet rs = preparedStatement.executeQuery()) {
+                    String password = null;
+                    String email = null;
+                    while (rs.next()) {
+                        password = rs.getString("password");
+                        email = rs.getString("email");
+                    }
+                    if (password != null && email != null) {
+                        User userToReturn = new User(username, password, email);
+                        return userToReturn;
+                    }
+                }
+            }
+        }
+        catch (DataAccessException ex) {
+            System.out.println(ex.getMessage());
+        }
+        catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
         return null;
     }
 
     @Override
     public String getUsername(AuthToken authToken) {
+        try (Connection conn = getConnection()) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement("SELECT username FROM authTokens WHERE authToken=?")) {
+                preparedStatement.setString(1, authToken.getAuthToken());
+                try(ResultSet rs = preparedStatement.executeQuery()) {
+                    String username = null;
+                    while (rs.next()) {
+                        username = rs.getString("username");
+                    }
+                    return username;
+                }
+            }
+        }
+        catch (DataAccessException ex) {
+            System.out.println(ex.getMessage());
+        }
+        catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
         return null;
     }
 
     @Override
     public void removeGame(int gameID) {
-
+        try (Connection conn = getConnection()) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement("DELETE FROM games WHERE gameID=?")) {
+                preparedStatement.setInt(1, gameID);
+                preparedStatement.executeUpdate();
+            }
+        }
+        catch (DataAccessException ex) {
+            System.out.println(ex.getMessage());
+        }
+        catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 
     @Override
     public void removeUser(String username) {
-
+        try (Connection conn = getConnection()) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement("DELETE FROM users WHERE username=?")) {
+                preparedStatement.setString(1, username);
+                preparedStatement.executeUpdate();
+            }
+        }
+        catch (DataAccessException ex) {
+            System.out.println(ex.getMessage());
+        }
+        catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 
     @Override
     public void removeAuthToken(AuthToken authToken) {
-
+        try (Connection conn = getConnection()) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement("DELETE FROM authTokens WHERE authToken=?")) {
+                preparedStatement.setString(1, authToken.getAuthToken());
+                preparedStatement.executeUpdate();
+            }
+        }
+        catch (DataAccessException ex) {
+            System.out.println(ex.getMessage());
+        }
+        catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 
     @Override
-    public void renameGame(int gameID, String newName) {
+    public void renameGame(int gameID, String newName) { //FIXME
 
     }
 
@@ -267,6 +332,23 @@ public class Database implements DatabaseInterface {
 
     @Override
     public boolean hasAuthToken(String username) {
+        try (Connection conn = getConnection()) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement("SELECT authToken FROM authTokens WHERE username=?")) {
+                preparedStatement.setString(1, username);
+                ResultSet rs = preparedStatement.executeQuery();
+                String authToken = null;
+                while(rs.next()) {
+                    authToken = rs.getString("authToken");
+                }
+                return authToken != null;
+            }
+        }
+        catch (DataAccessException ex) {
+            System.out.println(ex.getMessage());
+        }
+        catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
         return false;
     }
 }

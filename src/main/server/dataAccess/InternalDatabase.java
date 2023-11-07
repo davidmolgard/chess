@@ -23,12 +23,10 @@ public class InternalDatabase implements DatabaseInterface {
         return gamesArray;
     }
 
-    @Override
     public String getUsers() {
         return users.toString();
     }
 
-    @Override
     public String getAuthTokens() {
         return authTokens.toString();
     }
