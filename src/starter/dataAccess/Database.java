@@ -149,9 +149,6 @@ public class Database implements DatabaseInterface {
                             gameArray.add(gameBuilder.create().fromJson(json, Game.class));
                         }
                     }
-                    if (gameArray.isEmpty()) {
-                        return null;
-                    }
                     return gameArray.toArray(Game[]::new);
                 }
             }

@@ -229,7 +229,7 @@ public class GameDaoTests {
     @Test
     public void findAllNegative() {
         gameDAO.clearGames();
-        Assertions.assertNull(gameDAO.findAll(), "found games when no games added");
+        Assertions.assertEquals(0, gameDAO.findAll().length, "found games when no games added");
     }
 
     @Test
