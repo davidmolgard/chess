@@ -5,10 +5,7 @@ import server.models.Game;
 import chess.ChessGame;
 
 public class GameDAO implements DataAccessInterface{
-    private DatabaseInterface database = new InternalDatabase();
-    public GameDAO() {
-
-    }
+    private DatabaseInterface database;
 
     public GameDAO(DatabaseInterface database) {
         this.database = database;
@@ -58,12 +55,12 @@ public class GameDAO implements DataAccessInterface{
     }
 
     @Override
-    public void updateGameName(int gameID, String newName) throws DataAccessException {
+    public void updateGame(int gameID, Game game) throws DataAccessException {
         if (database.getGame(gameID) == null) {
             throw new DataAccessException("Game not found");
         }
         else {
-            database.renameGame(gameID, newName);
+            database.updateGame(gameID, game);
         }
     }
 

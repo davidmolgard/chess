@@ -101,8 +101,8 @@ public class InternalDatabase implements DatabaseInterface {
     }
 
     @Override
-    public void renameGame(int gameID, String newName) {
-        games.get(gameID).setGameName(newName);
+    public void updateGame(int gameID, Game game) {
+        games.replace(gameID, game);
     }
 
     public void removeGame(int gameID) {

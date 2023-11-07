@@ -55,7 +55,7 @@ public interface DatabaseInterface {
     User getUser(String username);
     void removeGame(int gameID);
     void removeUser(String username);
-    void renameGame(int gameID, String newName);
+    void updateGame(int gameID, Game game);
     int getNewGameID();
 
     boolean hasAuthToken(String username);

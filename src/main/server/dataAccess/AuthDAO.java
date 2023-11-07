@@ -5,11 +5,8 @@ import server.models.AuthToken;
 import java.util.UUID;
 
 public class AuthDAO {
-    private DatabaseInterface database = new InternalDatabase();
+    private DatabaseInterface database;
 
-    public AuthDAO() {
-
-    }
 
     public AuthDAO(DatabaseInterface database) {
         this.database = database;
@@ -30,9 +27,6 @@ public class AuthDAO {
         database.removeAuthToken(authToken);
     }
 
-    public boolean hasAuthToken(String username) {
-        return database.hasAuthToken(username);
-    }
 
     public String getUsername(AuthToken authToken) { return database.getUsername(authToken); }
 }

@@ -39,10 +39,10 @@ public interface DataAccessInterface {
     /**
      * renames a game
      * @param gameID to be renamed
-     * @param newName of game
+     * @param game updated
      * @throws DataAccessException if game cannot be found
      */
-    void updateGameName(int gameID, String newName) throws DataAccessException;
+    void updateGame(int gameID, Game game) throws DataAccessException;
 
     /**
      * removes a game
