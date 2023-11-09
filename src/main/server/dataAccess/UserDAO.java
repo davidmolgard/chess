@@ -1,7 +1,7 @@
 package server.dataAccess;
 
 import dataAccess.DataAccessException;
-import server.models.User;
+import models.User;
 
 public class UserDAO {
     private DatabaseInterface database;

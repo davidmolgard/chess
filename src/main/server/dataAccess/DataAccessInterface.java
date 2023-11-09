@@ -1,7 +1,7 @@
 package server.dataAccess;
 
 import dataAccess.DataAccessException;
-import server.models.Game;
+import models.Game;
 import chess.ChessGame;
 
 /**

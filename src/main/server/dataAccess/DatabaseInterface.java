@@ -1,9 +1,9 @@
 package server.dataAccess;
 
 import dataAccess.DataAccessException;
-import server.models.AuthToken;
-import server.models.Game;
-import server.models.User;
+import models.AuthToken;
+import models.Game;
+import models.User;
 
 import java.util.HashMap;
 

@@ -2,23 +2,23 @@ package passoffTests.serverTests;
 
 import org.junit.jupiter.api.*;
 import chess.*;
+import server.Services;
 import server.dataAccess.DatabaseInterface;
 import server.dataAccess.InternalDatabase;
-import server.models.AuthToken;
-import service.*;
-import service.clearClasses.ClearRequest;
-import service.createClasses.CreateRequest;
-import service.createClasses.CreateResult;
-import service.joinClasses.JoinRequest;
-import service.joinClasses.JoinResult;
-import service.listClasses.ListRequest;
-import service.listClasses.ListResult;
-import service.loginClasses.LoginRequest;
-import service.loginClasses.LoginResult;
-import service.logoutClasses.LogoutRequest;
-import service.logoutClasses.LogoutResult;
-import service.registerClasses.RegisterRequest;
-import service.registerClasses.RegisterResult;
+import models.AuthToken;
+import RequestResultClasses.clearClasses.ClearRequest;
+import RequestResultClasses.createClasses.CreateRequest;
+import RequestResultClasses.createClasses.CreateResult;
+import RequestResultClasses.joinClasses.JoinRequest;
+import RequestResultClasses.joinClasses.JoinResult;
+import RequestResultClasses.listClasses.ListRequest;
+import RequestResultClasses.listClasses.ListResult;
+import RequestResultClasses.loginClasses.LoginRequest;
+import RequestResultClasses.loginClasses.LoginResult;
+import RequestResultClasses.logoutClasses.LogoutRequest;
+import RequestResultClasses.logoutClasses.LogoutResult;
+import RequestResultClasses.registerClasses.RegisterRequest;
+import RequestResultClasses.registerClasses.RegisterResult;
 
 
 public class ServiceTests {

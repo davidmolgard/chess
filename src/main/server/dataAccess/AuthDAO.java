@@ -1,6 +1,6 @@
 package server.dataAccess;
 
-import server.models.AuthToken;
+import models.AuthToken;
 
 import java.util.UUID;
 

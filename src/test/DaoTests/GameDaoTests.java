@@ -3,7 +3,6 @@ package DaoTests;
 import chess.ChessBoardImpl;
 import chess.ChessGame;
 import chess.ChessGameImpl;
-import chess.ChessMoveImpl;
 import dataAccess.DataAccessException;
 import dataAccess.Database;
 import org.junit.jupiter.api.Assertions;
@@ -11,10 +10,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import server.dataAccess.GameDAO;
-import server.models.Game;
-import spark.utils.Assert;
-
-import java.util.Arrays;
+import models.Game;
 
 public class GameDaoTests {
     private static Database database = new Database();

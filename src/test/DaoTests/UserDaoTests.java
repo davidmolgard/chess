@@ -7,7 +7,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import server.dataAccess.UserDAO;
-import server.models.User;
+import models.User;
 
 public class UserDaoTests {
     private static Database database = new Database();

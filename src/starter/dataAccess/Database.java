@@ -3,9 +3,9 @@ package dataAccess;
 import chess.*;
 import com.google.gson.*;
 import server.dataAccess.DatabaseInterface;
-import server.models.AuthToken;
-import server.models.Game;
-import server.models.User;
+import models.AuthToken;
+import models.Game;
+import models.User;
 
 import java.lang.reflect.Type;
 import java.sql.*;
