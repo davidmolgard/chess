@@ -16,9 +16,14 @@ import com.mysql.cj.log.Log;
 import models.AuthToken;
 import models.Game;
 
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
+
+import static chess.ChessGame.TeamColor.WHITE;
+import static ui.EscapeSequences.*;
 
 public class Main {
     private static ServerFacade serverFacade = new ServerFacade();
@@ -26,6 +31,16 @@ public class Main {
     public static void main(String[] args) {
         preLogin();
     }
+
+    private static final int BOARD_SIZE_IN_SQUARES = 10;
+    private static final int SQUARE_SIZE_IN_CHARS = 3;
+    private static final String EMPTY = "   ";
+    private static final String QUEEN = " Q ";
+    private static final String KING = " K ";
+    private static final String BISHOP = " B ";
+    private static final String KNIGHT = " N ";
+    private static final String ROOK = " R ";
+    private static final String PAWN = " P ";
 
     private static void preLogin() {
         System.out.print("Welcome to chess. Type HELP to get started.\n");
@@ -161,7 +176,7 @@ public class Main {
                     }
                     else {
                         validInput = true;
-                        TeamColor teamColor = TeamColor.WHITE;
+                        TeamColor teamColor = WHITE;
                         if (words[2].equals("BLACK")) {
                             teamColor = TeamColor.BLACK;
                         }
@@ -227,8 +242,8 @@ public class Main {
    }
 
    private static void playGame(AuthToken authToken, String username, int gameID, int gameIndex, TeamColor color) {
-        System.out.print("Joined game " + gameID + " as " + username + "\n");
-
+        System.out.print("Joined game " + gameIndex+1 + " as " + username + "\n");
+        drawBoard(gameID, color);
    }
 
    private static void observeGame(AuthToken authToken, String username, int gameID, int gameIndex) {
@@ -237,5 +252,109 @@ public class Main {
 
    private static void drawBoard(int gameID, TeamColor color) {
 
+
+       PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+       out.print(ERASE_SCREEN);
+       if (color == WHITE) {
+           for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
+               if (boardRow == 0 || boardRow == BOARD_SIZE_IN_SQUARES - 1) {
+                   printOutlineRow(out, color);
+               } else {
+                   printBoardRow(out, color, boardRow);
+               }
+           }
+       }
+       else {
+           for (int boardRow = BOARD_SIZE_IN_SQUARES-1; boardRow >= 0; boardRow--) {
+               if (boardRow == 0 || boardRow == BOARD_SIZE_IN_SQUARES - 1) {
+                   printOutlineRow(out, color);
+               } else {
+                   printBoardRow(out, color, boardRow);
+               }
+           }
+       }
+       out.print(SET_BG_COLOR_BLACK);
+       out.print(SET_TEXT_COLOR_WHITE);
+   }
+
+   private static void printOutlineRow(PrintStream out, TeamColor color) {
+        setBoardOutlineColor(out);
+        out.print(SET_TEXT_COLOR_BLACK);
+        if (color == TeamColor.BLACK) {
+            out.print("    h  g  f  e  d  c  b  a    ");
+        }
+        else {
+            out.print("    a  b  c  d  e  f  g  h    ");
+        }
+        out.print(RESET_BG_COLOR);
+        out.println();
+   }
+
+   private static void printBoardRow(PrintStream out, TeamColor color, int row) {
+        int whiteSquare = 1;
+        int currColor = row % 2;
+        if (color == TeamColor.BLACK) {
+            currColor = (currColor+1) % 2;
+        }
+        if (color == WHITE) {
+            for (int currSquare = 0; currSquare < BOARD_SIZE_IN_SQUARES; currSquare++) {
+                if (currSquare == 0 || currSquare == BOARD_SIZE_IN_SQUARES-1) {
+                    setBoardOutlineColor(out);
+                    out.print(" " + row + " ");
+                }
+                else {
+                    if (currColor == whiteSquare) {
+                        setWhiteSquare(out);
+                        out.print(EMPTY);
+                    }
+                    else {
+                        setBlackSquare(out);
+                        out.print(EMPTY);
+                    }
+                    currColor = (currColor+1) % 2;
+                }
+            }
+        }
+        else {
+            for (int currSquare = BOARD_SIZE_IN_SQUARES-1; currSquare >= 0; currSquare--) {
+                if (currSquare == 0 || currSquare == BOARD_SIZE_IN_SQUARES-1) {
+                    setBoardOutlineColor(out);
+                    out.print(" " + row + " ");
+                }
+                else {
+                    if (currColor == whiteSquare) {
+                        setWhiteSquare(out);
+                        out.print(EMPTY);
+                    }
+                    else {
+                        setBlackSquare(out);
+                        out.print(EMPTY);
+                    }
+                    currColor = (currColor+1) % 2;
+                }
+            }
+        }
+       out.print(RESET_BG_COLOR);
+       out.println();
+   }
+
+   private static void setBoardOutlineColor(PrintStream out) {
+        out.print(SET_BG_COLOR_LIGHT_GREY);
+   }
+
+   private static void setWhiteSquare(PrintStream out) {
+        out.print(SET_BG_COLOR_WHITE);
+   }
+
+   private static void setBlackSquare(PrintStream out) {
+        out.print(SET_BG_COLOR_BLACK);
+   }
+
+   private static void setWhitePlayer(PrintStream out) {
+        out.print(SET_TEXT_COLOR_RED);
+   }
+
+   private static void setBlackPlayer(PrintStream out) {
+        out.print(SET_TEXT_COLOR_BLUE);
    }
 }
