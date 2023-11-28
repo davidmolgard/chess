@@ -12,6 +12,7 @@ import RequestResultClasses.registerClasses.RegisterRequest;
 import RequestResultClasses.registerClasses.RegisterResult;
 import chess.ChessGame;
 import chess.ChessGame.TeamColor;
+import chess.ChessPositionImpl;
 import com.mysql.cj.log.Log;
 import models.AuthToken;
 import models.Game;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
+import static chess.ChessGame.TeamColor.BLACK;
 import static chess.ChessGame.TeamColor.WHITE;
 import static ui.EscapeSequences.*;
 
@@ -242,25 +244,28 @@ public class Main {
    }
 
    private static void playGame(AuthToken authToken, String username, int gameID, int gameIndex, TeamColor color) {
-        System.out.print("Joined game " + gameIndex+1 + " as " + username + "\n");
-        drawBoard(gameID, color);
+        System.out.print("Joined game as " + username + "\n");
+        drawBoard(gameIndex, WHITE);
+        PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+        out.println();
+        drawBoard(gameIndex, BLACK);
    }
 
    private static void observeGame(AuthToken authToken, String username, int gameID, int gameIndex) {
         playGame(authToken, username, gameID, gameIndex, null);
    }
 
-   private static void drawBoard(int gameID, TeamColor color) {
-
+   private static void drawBoard(int gameIndex, TeamColor color) {
+        games.get(gameIndex).getGame().getBoard().resetBoard();
 
        PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
        out.print(ERASE_SCREEN);
-       if (color == WHITE) {
+       if (color == BLACK) {
            for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
                if (boardRow == 0 || boardRow == BOARD_SIZE_IN_SQUARES - 1) {
                    printOutlineRow(out, color);
                } else {
-                   printBoardRow(out, color, boardRow);
+                   printBoardRow(out, color, boardRow, gameIndex);
                }
            }
        }
@@ -269,7 +274,7 @@ public class Main {
                if (boardRow == 0 || boardRow == BOARD_SIZE_IN_SQUARES - 1) {
                    printOutlineRow(out, color);
                } else {
-                   printBoardRow(out, color, boardRow);
+                   printBoardRow(out, color, boardRow, gameIndex);
                }
            }
        }
@@ -279,7 +284,6 @@ public class Main {
 
    private static void printOutlineRow(PrintStream out, TeamColor color) {
         setBoardOutlineColor(out);
-        out.print(SET_TEXT_COLOR_BLACK);
         if (color == TeamColor.BLACK) {
             out.print("    h  g  f  e  d  c  b  a    ");
         }
@@ -290,7 +294,7 @@ public class Main {
         out.println();
    }
 
-   private static void printBoardRow(PrintStream out, TeamColor color, int row) {
+   private static void printBoardRow(PrintStream out, TeamColor color, int row, int gameIndex) {
         int whiteSquare = 1;
         int currColor = row % 2;
         if (color == TeamColor.BLACK) {
@@ -305,11 +309,11 @@ public class Main {
                 else {
                     if (currColor == whiteSquare) {
                         setWhiteSquare(out);
-                        out.print(EMPTY);
+                        printPiece(out, row, currSquare, gameIndex);
                     }
                     else {
                         setBlackSquare(out);
-                        out.print(EMPTY);
+                        printPiece(out, row, currSquare, gameIndex);
                     }
                     currColor = (currColor+1) % 2;
                 }
@@ -324,11 +328,11 @@ public class Main {
                 else {
                     if (currColor == whiteSquare) {
                         setWhiteSquare(out);
-                        out.print(EMPTY);
+                        printPiece(out, row, currSquare, gameIndex);
                     }
                     else {
                         setBlackSquare(out);
-                        out.print(EMPTY);
+                        printPiece(out, row, currSquare, gameIndex);
                     }
                     currColor = (currColor+1) % 2;
                 }
@@ -338,8 +342,48 @@ public class Main {
        out.println();
    }
 
+   private static void printPiece(PrintStream out, int row, int col, int gameIndex) {
+        Game game = games.get(gameIndex);
+        if (game.getGame().getBoard().getPiece(new ChessPositionImpl(row, col)) == null) {
+            out.print(EMPTY);
+        }
+        else {
+            if (game.getGame().getBoard().getPiece(new ChessPositionImpl(row, col)).getTeamColor() == WHITE) {
+                setWhitePlayer(out);
+            }
+            else {
+                setBlackPlayer(out);
+            }
+            switch (game.getGame().getBoard().getPiece(new ChessPositionImpl(row, col)).getPieceType()) {
+                case KING -> {
+                    out.print(KING);
+                }
+                case QUEEN -> {
+                    out.print(QUEEN);
+                }
+                case BISHOP -> {
+                    out.print(BISHOP);
+                }
+                case KNIGHT -> {
+                    out.print(KNIGHT);
+                }
+                case ROOK -> {
+                    out.print(ROOK);
+                }
+                case PAWN -> {
+                    out.print(PAWN);
+                }
+                default -> {
+                    out.print(EMPTY);
+                }
+            }
+        }
+
+   }
+
    private static void setBoardOutlineColor(PrintStream out) {
         out.print(SET_BG_COLOR_LIGHT_GREY);
+        out.print(SET_TEXT_COLOR_BLACK);
    }
 
    private static void setWhiteSquare(PrintStream out) {

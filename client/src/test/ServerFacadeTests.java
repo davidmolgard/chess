@@ -131,6 +131,26 @@ public class ServerFacadeTests {
     }
 
     @Test
+    public void observePositive() {
+        CreateRequest createRequest = new CreateRequest(authToken, "noGame");
+        CreateResult createResult = serverFacade.create(createRequest);
+        int gameID = createResult.getGameID();
+        JoinRequest joinRequest = new JoinRequest(authToken, gameID);
+        JoinResult joinResult = serverFacade.join(joinRequest);
+        Assertions.assertEquals(joinResult.getResponseCode(), 200);
+    }
+
+    @Test
+    public void observeNegative() {
+        CreateRequest createRequest = new CreateRequest(authToken, "noGame");
+        CreateResult createResult = serverFacade.create(createRequest);
+        int gameID = createResult.getGameID();
+        JoinRequest joinRequest = new JoinRequest(new AuthToken(), gameID);
+        JoinResult joinResult = serverFacade.join(joinRequest);
+        Assertions.assertEquals(joinResult.getResponseCode(), 401);
+    }
+
+    @Test
     public void listPositive() {
         CreateRequest createRequest = new CreateRequest(authToken, "game1");
         serverFacade.create(createRequest);

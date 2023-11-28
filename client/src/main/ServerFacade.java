@@ -226,9 +226,20 @@ public class ServerFacade {
         Response joinResponse = null;
         int responseCode = 500;
         try {
-            HttpURLConnection http = sendRequest("http://localhost:8080/game", "PUT",
-                    Map.of("playerColor", joinRequest.getColor().toString(), "gameID", joinRequest.getGameID()).toString(), joinRequest.getAuthToken());
-            joinResponse = receiveResponse(http);
+            String color = "";
+            if (joinRequest.getColor() != null) {
+                color = joinRequest.getColor().toString();
+                HttpURLConnection http = sendRequest("http://localhost:8080/game", "PUT",
+                        Map.of("playerColor", color, "gameID", joinRequest.getGameID()).toString(), joinRequest.getAuthToken());
+                joinResponse = receiveResponse(http);
+            }
+            else {
+                HttpURLConnection http = sendRequest("http://localhost:8080/game", "PUT",
+                        Map.of( "gameID", joinRequest.getGameID()).toString(), joinRequest.getAuthToken());
+                joinResponse = receiveResponse(http);
+            }
+
+
         } catch(IOException ex) {
             responseCode = getErrorCode(ex);
         }

@@ -180,7 +180,7 @@ public class Server {
             AuthToken token = new AuthToken();
             token.setAuthToken(authToken);
             JoinRequest joinRequest = new JoinRequest(null, 0);
-            if (color != null) {
+            if (color != null && !color.isEmpty()) {
                 joinRequest = new JoinRequest(token, teamColor, ID);
             }
             else {
