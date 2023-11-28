@@ -13,12 +13,15 @@ import RequestResultClasses.registerClasses.RegisterResult;
 import chess.ChessGame;
 import com.mysql.cj.log.Log;
 import models.AuthToken;
+import models.Game;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
     private static ServerFacade serverFacade = new ServerFacade();
-
+    private static ArrayList<Game> games = new ArrayList<>();
     public static void main(String[] args) {
         preLogin();
     }
@@ -110,10 +113,17 @@ public class Main {
                 return;
             }
             else if (line.equals("LIST")) {
-                ListRequest listRequest = new ListRequest(authToken);
                 ListResult listResult = serverFacade.list(authToken);
                 validInput = true;
-                if (listResult.getResponseCode() != 200) {
+                if (listResult.getResponseCode() == 200) {
+                    games.clear();
+                    games.addAll(Arrays.asList(listResult.getGames()));
+                    for (int i = 0; i < games.size(); i++) {
+                        System.out.print(i+1 + " " + games.get(i).getGameName() + " White Player: " + games.get(i).getWhiteUsername()
+                         + " Black Player: " + games.get(i).getBlackUsername() + "\n");
+                    }
+                }
+                else {
                     System.out.print(listResult.getMessage() + "\n");
                 }
             }
@@ -131,7 +141,10 @@ public class Main {
                             System.out.print(createResult.getMessage() + "\n");
                         }
                         else {
-                            System.out.print("New game created with game ID: " + createResult.getGameID() + "\n");
+                            ListResult listResult = serverFacade.list(authToken);
+                            games.clear();
+                            games.addAll(Arrays.asList(listResult.getGames()));
+                            System.out.print("New game created\n");
                         }
                     }
                 }
@@ -146,13 +159,22 @@ public class Main {
                             teamColor = ChessGame.TeamColor.BLACK;
                         }
                         int gameID = Integer.parseInt(words[1]);
-                        JoinRequest joinRequest = new JoinRequest(authToken, teamColor, gameID);
-                        JoinResult joinResult = serverFacade.join(joinRequest);
-                        if (joinResult.getResponseCode() != 200) {
-                            System.out.print(joinResult.getMessage() + "\n");
+                        if (games.isEmpty()) {
+                            errorMessage = "no games found.";
                         }
                         else {
-                            playGame(authToken, username, gameID);
+                            if (gameID < 1 || gameID > games.size()+1) {
+                                errorMessage = "invalid game ID.";
+                            }
+                            else {
+                                JoinRequest joinRequest = new JoinRequest(authToken, teamColor, games.get(gameID - 1).getGameID());
+                                JoinResult joinResult = serverFacade.join(joinRequest);
+                                if (joinResult.getResponseCode() != 200) {
+                                    System.out.print(joinResult.getMessage() + "\n");
+                                } else {
+                                    playGame(authToken, username, gameID);
+                                }
+                            }
                         }
                     }
                 }
