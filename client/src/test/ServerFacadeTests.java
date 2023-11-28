@@ -116,6 +116,9 @@ public class ServerFacadeTests {
         int gameID = createResult.getGameID();
         JoinRequest joinRequest = new JoinRequest(authToken, ChessGame.TeamColor.WHITE, gameID);
         serverFacade.join(joinRequest);
+        RegisterRequest registerRequest = new RegisterRequest("anotherUser", "badpassword", "notanemail@fake.com");
+        RegisterResult registerResult = serverFacade.register(registerRequest);
+        joinRequest.setAuthToken(registerResult.getAuthToken());
         JoinResult joinResult = serverFacade.join(joinRequest);
         Assertions.assertEquals(joinResult.getResponseCode(), 403);
         joinRequest.setAuthToken(new AuthToken());

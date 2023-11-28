@@ -150,9 +150,9 @@ public class GameDaoTests {
         }
         Assertions.assertThrows(DataAccessException.class, ()-> gameDAO.claimSpot(0, blackUsername, ChessGame.TeamColor.BLACK)
                 , "invalid gameID did not return DataAccessException");
-        Assertions.assertThrows(DataAccessException.class, ()-> gameDAO.claimSpot(gameID, whiteUsername, ChessGame.TeamColor.WHITE)
+        Assertions.assertThrows(DataAccessException.class, ()-> gameDAO.claimSpot(gameID, blackUsername, ChessGame.TeamColor.WHITE)
                 , "trying to claim previously claimed spot did not throw DataAccessException");
-        Assertions.assertThrows(DataAccessException.class, ()-> gameDAO.claimSpot(gameID, blackUsername, ChessGame.TeamColor.BLACK)
+        Assertions.assertThrows(DataAccessException.class, ()-> gameDAO.claimSpot(gameID, whiteUsername, ChessGame.TeamColor.BLACK)
                 , "trying to claim previously claimed spot did not throw DataAccessException");
     }
 
