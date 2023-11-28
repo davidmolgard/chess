@@ -421,6 +421,14 @@ public class Database implements DatabaseInterface {
 
     @Override
     public int getNewGameID() {
+        if (gameIDGenerator == 1000) {
+            for (Game game : getGames()) {
+                if (game.getGameID() > gameIDGenerator) {
+                    gameIDGenerator = game.getGameID();
+                }
+            }
+
+        }
         gameIDGenerator++;
         return gameIDGenerator;
     }
