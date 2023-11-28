@@ -42,7 +42,7 @@ public class GameDAO implements DataAccessInterface{
         }
         else {
             if (color == ChessGame.TeamColor.WHITE) {
-                if (database.getGame(gameID).getWhiteUsername() != null) {
+                if (database.getGame(gameID).getWhiteUsername() != null && !database.getGame(gameID).getWhiteUsername().equals(username)) {
                     throw new DataAccessException("White Player already present in game " + gameID);
                 }
                 else {
@@ -52,7 +52,7 @@ public class GameDAO implements DataAccessInterface{
                 }
             }
             if (color == ChessGame.TeamColor.BLACK) {
-                if (database.getGame(gameID).getBlackUsername() != null) {
+                if (database.getGame(gameID).getBlackUsername() != null && !database.getGame(gameID).getBlackUsername().equals(username)) {
                     throw new DataAccessException("Black Player already present in game " + gameID);
                 }
                 else {
