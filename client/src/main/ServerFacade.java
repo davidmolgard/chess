@@ -10,17 +10,23 @@ import RequestResultClasses.logoutClasses.LogoutRequest;
 import RequestResultClasses.logoutClasses.LogoutResult;
 import RequestResultClasses.registerClasses.RegisterRequest;
 import RequestResultClasses.registerClasses.RegisterResult;
-import com.google.gson.Gson;
+import chess.*;
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 import models.AuthToken;
 import models.Game;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 public class ServerFacade {
+    private GsonBuilder gameBuilder = new GsonBuilder();
 
     private static HttpURLConnection sendRequest(String url, String method, String body, AuthToken authToken) throws URISyntaxException, IOException {
         URI uri = new URI(url);
@@ -153,12 +159,23 @@ public class ServerFacade {
         int responseCode = 500;
         try {
             HttpURLConnection http = sendRequest("http://localhost:8080/game", "GET", "", authToken);
-            listResponse = receiveResponse(http);
+            if (http.getResponseCode() == 200) {
+                Map<String, Game[]> responseMap;
+                Type mapType = new TypeToken<Map<String, Game[]>>() {}.getType();
+                createGameBuilder();
+                try (InputStream respBody = http.getInputStream()) {
+                    InputStreamReader inputStreamReader = new InputStreamReader(respBody);
+                    responseMap = gameBuilder.create().fromJson(inputStreamReader, mapType);
+                    return new ListResult(responseMap.get("games"));
+                }
+            }
+
         } catch(IOException ex) {
             responseCode = getErrorCode(ex);
         }
         catch(Exception ex) {
             System.out.print("Exception " + ex.getClass() + ex.getMessage() + " caught in list method\n");
+            System.out.print(Arrays.toString(ex.getStackTrace()));
         }
         if (listResponse == null) {
             if (responseCode == 500) {
@@ -169,8 +186,7 @@ public class ServerFacade {
             }
         }
         else {
-            Map<String, Game[]> responseMap = (Map<String, Game[]>) listResponse.getBody();
-            return new ListResult(responseMap.get("games"));
+            return new ListResult(500, "Error: server error");
         }
     }
 
@@ -250,6 +266,38 @@ public class ServerFacade {
         int errorCode = Integer.parseInt(ex.getMessage().replaceAll("[^0-9]", ""));
         errorCode = errorCode / 10000;
         return errorCode;
+    }
+
+    public class GameAdapter implements JsonDeserializer<ChessGame> {
+        @Override
+        public ChessGame deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+            GsonBuilder builder = new GsonBuilder();
+            builder.registerTypeAdapter(ChessBoard.class, new BoardAdapter());
+            return builder.create().fromJson(jsonElement, ChessGameImpl.class);
+        }
+    }
+
+    public class BoardAdapter implements JsonDeserializer<ChessBoard> {
+
+        @Override
+        public ChessBoard deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+            GsonBuilder builder = new GsonBuilder();
+            builder.registerTypeAdapter(ChessPiece.class, new PieceAdapter());
+            return builder.create().fromJson(jsonElement, ChessBoardImpl.class);
+        }
+    }
+
+    public class PieceAdapter implements JsonDeserializer<ChessPiece> {
+
+        @Override
+        public ChessPiece deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+            return new Gson().fromJson(jsonElement, ChessPieceImpl.class);
+        }
+    }
+    private void createGameBuilder() {
+        gameBuilder.registerTypeAdapter(ChessGame.class, new GameAdapter());
+        gameBuilder.registerTypeAdapter(ChessBoard.class, new BoardAdapter());
+        gameBuilder.registerTypeAdapter(ChessPiece.class, new PieceAdapter());
     }
 
 }

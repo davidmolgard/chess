@@ -2,6 +2,7 @@ import RequestResultClasses.createClasses.CreateRequest;
 import RequestResultClasses.createClasses.CreateResult;
 import RequestResultClasses.joinClasses.JoinRequest;
 import RequestResultClasses.joinClasses.JoinResult;
+import RequestResultClasses.listClasses.ListResult;
 import RequestResultClasses.loginClasses.LoginRequest;
 import RequestResultClasses.loginClasses.LoginResult;
 import RequestResultClasses.logoutClasses.LogoutRequest;
@@ -10,6 +11,7 @@ import RequestResultClasses.registerClasses.RegisterRequest;
 import RequestResultClasses.registerClasses.RegisterResult;
 import chess.ChessGame;
 import models.AuthToken;
+import models.Game;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -127,6 +129,22 @@ public class ServerFacadeTests {
 
     @Test
     public void listPositive() {
+        CreateRequest createRequest = new CreateRequest(authToken, "game1");
+        serverFacade.create(createRequest);
+        createRequest.setGameName("game2");
+        serverFacade.create(createRequest);
+        createRequest.setGameName("game3");
+        serverFacade.create(createRequest);
+        ListResult listResult = serverFacade.list(authToken);
+        Assertions.assertEquals(200, listResult.getResponseCode());
+        Assertions.assertNotNull(listResult.getGames());
+        Assertions.assertEquals("game1", listResult.getGames()[0].getGameName());
+        Assertions.assertEquals("game2", listResult.getGames()[1].getGameName());
+        Assertions.assertEquals("game3", listResult.getGames()[2].getGameName());
+    }
+
+    @Test
+    public void listNegative() {
 
     }
 }
