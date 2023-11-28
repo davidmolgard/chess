@@ -11,6 +11,7 @@ import RequestResultClasses.logoutClasses.LogoutResult;
 import RequestResultClasses.registerClasses.RegisterRequest;
 import RequestResultClasses.registerClasses.RegisterResult;
 import chess.ChessGame;
+import chess.ChessGame.TeamColor;
 import com.mysql.cj.log.Log;
 import models.AuthToken;
 import models.Game;
@@ -109,8 +110,14 @@ public class Main {
             else if (line.equals("LOGOUT")) {
                 LogoutRequest logoutRequest = new LogoutRequest(authToken);
                 LogoutResult logoutResult = serverFacade.logout(logoutRequest);
-                System.out.print("Logged out.\n");
-                return;
+                if (logoutResult.getResponseCode() == 200) {
+                    System.out.print("Logged out.\n");
+                    return;
+                }
+                else {
+                    validInput = true;
+                    System.out.print(logoutResult.getMessage() + "\n");
+                }
             }
             else if (line.equals("LIST")) {
                 ListResult listResult = serverFacade.list(authToken);
@@ -154,25 +161,27 @@ public class Main {
                     }
                     else {
                         validInput = true;
-                        ChessGame.TeamColor teamColor = ChessGame.TeamColor.WHITE;
+                        TeamColor teamColor = TeamColor.WHITE;
                         if (words[2].equals("BLACK")) {
-                            teamColor = ChessGame.TeamColor.BLACK;
+                            teamColor = TeamColor.BLACK;
                         }
-                        int gameID = Integer.parseInt(words[1]);
+                        int gameIndex = Integer.parseInt(words[1]);
+                        gameIndex--;
+                        int gameID = games.get(gameIndex).getGameID();
                         if (games.isEmpty()) {
                             errorMessage = "no games found.";
                         }
                         else {
-                            if (gameID < 1 || gameID > games.size()+1) {
+                            if (gameIndex < 0 || gameIndex >= games.size()) {
                                 errorMessage = "invalid game ID.";
                             }
                             else {
-                                JoinRequest joinRequest = new JoinRequest(authToken, teamColor, games.get(gameID - 1).getGameID());
+                                JoinRequest joinRequest = new JoinRequest(authToken, teamColor, gameID);
                                 JoinResult joinResult = serverFacade.join(joinRequest);
                                 if (joinResult.getResponseCode() != 200) {
                                     System.out.print(joinResult.getMessage() + "\n");
                                 } else {
-                                    playGame(authToken, username, gameID);
+                                    playGame(authToken, username, gameID, gameIndex, teamColor);
                                 }
                             }
                         }
@@ -184,14 +193,16 @@ public class Main {
                     }
                     else {
                         validInput = true;
-                        int gameID = Integer.parseInt(words[1]);
+                        int gameIndex = Integer.parseInt(words[1]);
+                        gameIndex--;
+                        int gameID = games.get(gameIndex).getGameID();
                         JoinRequest joinRequest = new JoinRequest(authToken, gameID);
                         JoinResult joinResult = serverFacade.join(joinRequest);
                         if (joinResult.getResponseCode() != 200) {
                             System.out.print(joinResult.getMessage() + "\n");
                         }
                         else {
-                            observeGame(authToken, username, gameID);
+                            observeGame(authToken, username, gameID, gameIndex);
                         }
                     }
                 }
@@ -215,12 +226,16 @@ public class Main {
        System.out.print("OBSERVE <ID> - join game as observer\n");
    }
 
-   private static void playGame(AuthToken authToken, String username, int gameID) {
+   private static void playGame(AuthToken authToken, String username, int gameID, int gameIndex, TeamColor color) {
         System.out.print("Joined game " + gameID + " as " + username + "\n");
 
    }
 
-   private static void observeGame(AuthToken authToken, String username, int gameID) {
-        playGame(authToken, username, gameID);
+   private static void observeGame(AuthToken authToken, String username, int gameID, int gameIndex) {
+        playGame(authToken, username, gameID, gameIndex, null);
+   }
+
+   private static void drawBoard(int gameID, TeamColor color) {
+
    }
 }
