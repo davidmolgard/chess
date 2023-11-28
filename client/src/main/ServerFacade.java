@@ -169,7 +169,9 @@ public class ServerFacade {
                     return new ListResult(responseMap.get("games"));
                 }
             }
-
+            else {
+                responseCode = http.getResponseCode();
+            }
         } catch(IOException ex) {
             responseCode = getErrorCode(ex);
         }

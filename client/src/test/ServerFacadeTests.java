@@ -145,6 +145,9 @@ public class ServerFacadeTests {
 
     @Test
     public void listNegative() {
-
+        CreateRequest createRequest = new CreateRequest(authToken, "game1");
+        serverFacade.create(createRequest);
+        ListResult listResult = serverFacade.list(new AuthToken());
+        Assertions.assertEquals(401, listResult.getResponseCode());
     }
 }
