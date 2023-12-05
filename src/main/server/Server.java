@@ -22,6 +22,8 @@ import RequestResultClasses.registerClasses.RegisterResult;
 import spark.*;
 import java.util.*;
 
+import static spark.Spark.webSocket;
+
 
 public class Server {
     private DatabaseInterface database = new Database();
@@ -35,6 +37,8 @@ public class Server {
     private void run() {
         Spark.port(8080);
         Spark.externalStaticFileLocation("C:/Users/molga/chess/web");
+
+        webSocket("/connect", WebSocketServer.class);
 
         Spark.delete("/db", this::clear);
         Spark.post("/user", this::register);
