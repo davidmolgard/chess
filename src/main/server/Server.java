@@ -38,7 +38,7 @@ public class Server {
         Spark.port(8080);
         Spark.externalStaticFileLocation("C:/Users/molga/chess/web");
 
-        webSocket("/connect", WebSocketServer.class);
+        webSocket("/connect", WebSocketHandler.class);
 
         Spark.delete("/db", this::clear);
         Spark.post("/user", this::register);
