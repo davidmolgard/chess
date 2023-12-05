@@ -19,16 +19,11 @@ public class WebSocketHandler {
     public void onMessage(Session session, String message) throws Exception {
         UserGameCommand userGameCommand = new Gson().fromJson(message, UserGameCommand.class);
         switch (userGameCommand.getCommandType()) {
-            case JOIN_PLAYER -> joinPlayer(userGameCommand.);
-
-            case JOIN_OBSERVER:
-                break;
-            case MAKE_MOVE:
-                break;
-            case LEAVE:
-                break;
-            case RESIGN:
-                break;
+            case JOIN_PLAYER -> joinPlayer(userGameCommand.getGameID(), userGameCommand.getPlayerColor());
+            case JOIN_OBSERVER -> joinObserver(userGameCommand.getGameID());
+            case MAKE_MOVE -> makeMove(userGameCommand.getGameID(), userGameCommand.getChessMove());
+            case LEAVE -> leave(userGameCommand.getGameID());
+            case RESIGN -> resign(userGameCommand.getGameID());
         }
     }
 
