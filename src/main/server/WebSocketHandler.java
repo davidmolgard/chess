@@ -18,33 +18,39 @@ public class WebSocketHandler {
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws Exception {
         UserGameCommand userGameCommand = new Gson().fromJson(message, UserGameCommand.class);
+        ServerMessage serverMessage;
         switch (userGameCommand.getCommandType()) {
-            case JOIN_PLAYER -> joinPlayer(userGameCommand.getGameID(), userGameCommand.getPlayerColor());
-            case JOIN_OBSERVER -> joinObserver(userGameCommand.getGameID());
-            case MAKE_MOVE -> makeMove(userGameCommand.getGameID(), userGameCommand.getChessMove());
-            case LEAVE -> leave(userGameCommand.getGameID());
-            case RESIGN -> resign(userGameCommand.getGameID());
+            case JOIN_PLAYER -> serverMessage = joinPlayer(userGameCommand.getGameID(), userGameCommand.getPlayerColor());
+            case JOIN_OBSERVER -> serverMessage = joinObserver(userGameCommand.getGameID());
+            case MAKE_MOVE -> serverMessage = makeMove(userGameCommand.getGameID(), userGameCommand.getChessMove());
+            case LEAVE -> serverMessage = leave(userGameCommand.getGameID());
+            case RESIGN -> serverMessage = resign(userGameCommand.getGameID());
         }
     }
 
-    private void joinPlayer(int gameID, ChessGame.TeamColor playerColor) {
-
+    private ServerMessage joinPlayer(int gameID, ChessGame.TeamColor playerColor) {
+        ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+        return serverMessage;
     }
 
-    private void joinObserver(int gameID) {
-
+    private ServerMessage joinObserver(int gameID) {
+        ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+        return serverMessage;
     }
 
-    private void makeMove(int gameID, ChessMoveImpl move) {
-
+    private ServerMessage makeMove(int gameID, ChessMoveImpl move) {
+        ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+        return serverMessage;
     }
 
-    private void leave(int gameID) {
-
+    private ServerMessage leave(int gameID) {
+        ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+        return serverMessage;
     }
 
-    private void resign(int gameID) {
-
+    private ServerMessage resign(int gameID) {
+        ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+        return serverMessage;
     }
 
 }
