@@ -23,21 +23,21 @@ public class ConnectionManager {
         connections.remove(authToken);
     }
 
-    public void broadcast(String excludeAuthToken, ServerMessage serverMessage) throws IOException {
+    public void broadcast(int gameID, ServerMessage serverMessage) throws IOException {
         var removeList = new ArrayList<Connection>();
-        for (var c : connections.values()) {
-            if (c.session.isOpen()) {
-                if (!c.authToken.equals(excludeAuthToken)) {
-                    c.send(serverMessage.toString());
+        for (Connection connection : connections.values()) {
+            if (connection.session.isOpen()) {
+                if (connection.gameID == gameID) {
+                    connection.send(serverMessage);
                 }
             } else {
-                removeList.add(c);
+                removeList.add(connection);
             }
         }
 
         // Clean up any connections that were left open.
-        for (var c : removeList) {
-            connections.remove(c.authToken);
+        for (Connection connection : removeList) {
+            connections.remove(connection.authToken);
         }
     }
 }
