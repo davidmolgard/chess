@@ -7,6 +7,7 @@ import RequestResultClasses.logoutClasses.LogoutResult;
 import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessMoveImpl;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataAccess.Database;
 import models.AuthToken;
@@ -90,7 +91,30 @@ public class WebSocketHandler {
     }
 
     private void makeMove(String authToken, int gameID, ChessMoveImpl move, Session session) {
-
+        Game game = database.getGame(gameID);
+        if (game.isOver()) {
+            try {
+                connections.broadcast(gameID, THIS, authToken, new ServerMessage(ServerMessage.ServerMessageType.ERROR, "Error: Game is over.\n"));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        else {
+            try {
+                game.getGame().makeMove(move);
+                database.updateGame(gameID, game);
+                connections.broadcast(gameID, ALL, authToken, new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, game));
+                connections.broadcast(gameID, OTHER, authToken, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, getUsername(authToken) + " made move: " + move.toString()));
+            } catch (InvalidMoveException e) {
+                try {
+                    connections.broadcast(gameID, THIS, authToken, new ServerMessage(ServerMessage.ServerMessageType.ERROR, "Error: Invalid move.\n"));
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     private void leave(String authToken, int gameID, Session session) {
