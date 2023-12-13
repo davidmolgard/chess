@@ -32,7 +32,7 @@ public class Repl implements ServerMessageObserver {
     private static final ServerFacade serverFacade = new ServerFacade();
     private static final ArrayList<Game> games = new ArrayList<>();
 
-    private WebSocketFacade webSocketFacade;
+    private final WebSocketFacade webSocketFacade;
 
     {
         try {
@@ -118,7 +118,7 @@ public class Repl implements ServerMessageObserver {
         System.out.print("REGISTER <USERNAME> <PASSWORD> <EMAIL> - create new user\n");
     }
 
-    private static void postLogin(String username, String authTokenString) {
+    private void postLogin(String username, String authTokenString) {
         System.out.print("Logged in as " + username + "\n");
         System.out.print("Input HELP for a list of options.\n");
         AuthToken authToken = new AuthToken(authTokenString, username);
@@ -343,27 +343,13 @@ public class Repl implements ServerMessageObserver {
                 setBlackPlayer(out);
             }
             switch (game.getGame().getBoard().getPiece(new ChessPositionImpl(row, col)).getPieceType()) {
-                case KING -> {
-                    out.print(KING);
-                }
-                case QUEEN -> {
-                    out.print(QUEEN);
-                }
-                case BISHOP -> {
-                    out.print(BISHOP);
-                }
-                case KNIGHT -> {
-                    out.print(KNIGHT);
-                }
-                case ROOK -> {
-                    out.print(ROOK);
-                }
-                case PAWN -> {
-                    out.print(PAWN);
-                }
-                default -> {
-                    out.print(EMPTY);
-                }
+                case KING -> out.print(KING);
+                case QUEEN -> out.print(QUEEN);
+                case BISHOP -> out.print(BISHOP);
+                case KNIGHT -> out.print(KNIGHT);
+                case ROOK -> out.print(ROOK);
+                case PAWN -> out.print(PAWN);
+                default -> out.print(EMPTY);
             }
         }
 
