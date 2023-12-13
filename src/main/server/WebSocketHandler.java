@@ -19,8 +19,7 @@ import webSocketMessages.serverMessages.*;
 
 import java.io.IOException;
 
-import static server.WebSocketHandler.ClientsToNotify.OTHER;
-import static server.WebSocketHandler.ClientsToNotify.THIS;
+import static server.WebSocketHandler.ClientsToNotify.*;
 
 @WebSocket
 public class WebSocketHandler {
@@ -122,7 +121,15 @@ public class WebSocketHandler {
     }
 
     private void resign(String authToken, int gameID, Session session) {
-
+        Game game = database.getGame(gameID);
+        game.setOver(true);
+        database.updateGame(gameID, game);
+        try {
+            connections.broadcast(gameID, ALL, authToken,  new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                    getUsername(authToken) + " has resigned.\n"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private String getUsername(String authToken) {
