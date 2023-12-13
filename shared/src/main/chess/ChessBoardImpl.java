@@ -8,7 +8,7 @@ import static chess.ChessPiece.PieceType.PAWN;
 public class ChessBoardImpl implements ChessBoard{
     ChessPiece[][] chessBoard = new ChessPiece[8][8];
     public ChessBoardImpl() {
-
+        resetBoard();
     }
 
     public ChessBoardImpl(ChessBoard board) {
