@@ -57,6 +57,22 @@ public class UserGameCommand {
         return authToken;
     }
 
+    public void setGameID(int gameID) {
+        this.gameID = gameID;
+    }
+
+    public void setMove(ChessMove move) {
+        this.move = move;
+    }
+
+    public void setCommandType(CommandType commandType) {
+        this.commandType = commandType;
+    }
+
+    public void setPlayerColor(ChessGame.TeamColor playerColor) {
+        this.playerColor = playerColor;
+    }
+
     public CommandType getCommandType() {
         return this.commandType;
     }
