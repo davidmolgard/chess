@@ -1,7 +1,5 @@
 package server;
 
-import RequestResultClasses.joinClasses.JoinRequest;
-import RequestResultClasses.joinClasses.JoinResult;
 import RequestResultClasses.logoutClasses.LogoutRequest;
 import RequestResultClasses.logoutClasses.LogoutResult;
 import chess.*;
@@ -13,7 +11,6 @@ import models.AuthToken;
 import models.Game;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.*;
-import spark.Spark;
 import webSocketMessages.userCommands.*;
 import webSocketMessages.serverMessages.*;
 
@@ -43,7 +40,7 @@ public class WebSocketHandler {
             switch (userGameCommand.getCommandType()) {
                 case JOIN_PLAYER -> joinPlayer(userGameCommand.getAuthString(), userGameCommand.getGameID(), userGameCommand.getPlayerColor(), session);
                 case JOIN_OBSERVER -> joinObserver(userGameCommand.getAuthString(), userGameCommand.getGameID(), session);
-                case MAKE_MOVE -> makeMove(userGameCommand.getAuthString(), userGameCommand.getGameID(), userGameCommand.getChessMove(), session);
+                case MAKE_MOVE -> makeMove(userGameCommand.getAuthString(), userGameCommand.getGameID(), userGameCommand.getMove(), session);
                 case LEAVE -> leave(userGameCommand.getAuthString(), userGameCommand.getGameID(), session);
                 case RESIGN -> resign(userGameCommand.getAuthString(), userGameCommand.getGameID(), session);
             }
@@ -54,33 +51,55 @@ public class WebSocketHandler {
     }
 
     private void joinPlayer(String authToken, int gameID, ChessGame.TeamColor playerColor, Session session) {
-        JoinResult joinResult = services.join(new JoinRequest(new AuthToken(authToken, getUsername(authToken)), playerColor, gameID));
-        if (joinResult.getResponseCode() != services.OK) {
+        if (database.getGame(gameID) == null) {
             try {
-                connections.broadcast(gameID, THIS, authToken, new ServerMessage(joinResult.getMessage(), ServerMessage.ServerMessageType.ERROR));
+                session.getRemote().sendString(new Gson().toJson(new ServerMessage("Error: Game not found\n", ServerMessage.ServerMessageType.ERROR)));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
         else {
-            connections.add(authToken, gameID, true, session);
-            try {
-                connections.broadcast(gameID, OTHER, authToken, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                        getUsername(authToken) + " joined the game as " + playerColor.toString() + " player.\n"));
-                connections.broadcast(gameID, THIS, authToken, new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, database.getGame(gameID)));
+            boolean correctTeam = false;
+            if (playerColor == ChessGame.TeamColor.WHITE) {
+                if (database.getGame(gameID).getWhiteUsername() != null) {
+                    if (database.getGame(gameID).getWhiteUsername().equals(getUsername(authToken))) {
+                        correctTeam = true;
+                    }
+                }
             }
-            catch(IOException ex) {
-                throw new RuntimeException(ex);
+            else if (playerColor == ChessGame.TeamColor.BLACK) {
+                if (database.getGame(gameID).getBlackUsername() != null) {
+                    if (database.getGame(gameID).getBlackUsername().equals(getUsername(authToken))) {
+                        correctTeam = true;
+                    }
+                }
+            }
+            if (correctTeam) {
+                connections.add(authToken, gameID, true, session);
+                try {
+                    connections.broadcast(gameID, OTHER, authToken, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                            getUsername(authToken) + " joined the game as " + playerColor.toString() + " player.\n"));
+                    connections.broadcast(gameID, THIS, authToken, new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, database.getGame(gameID)));
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+            else {
+                try {
+                    session.getRemote().sendString(new Gson().toJson(new ServerMessage("Error: try to join again.\n", ServerMessage.ServerMessageType.ERROR)));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
 
         }
     }
 
     private void joinObserver(String authToken, int gameID, Session session) {
-        JoinResult joinResult = services.join(new JoinRequest(new AuthToken(authToken, getUsername(authToken)), gameID));
-        if (joinResult.getResponseCode() != services.OK) {
+
+        if (database.getGame(gameID) == null) {
             try {
-                connections.broadcast(gameID, THIS, authToken, new ServerMessage(joinResult.getMessage(), ServerMessage.ServerMessageType.ERROR));
+                session.getRemote().sendString( new Gson().toJson(new ServerMessage("Error: Game not found.\n", ServerMessage.ServerMessageType.ERROR)));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -97,7 +116,7 @@ public class WebSocketHandler {
         }
     }
 
-    private void makeMove(String authToken, int gameID, ChessMoveImpl move, Session session) {
+    private void makeMove(String authToken, int gameID, ChessMove move, Session session) {
         Game game = database.getGame(gameID);
         if (game.isOver()) {
             try {
@@ -106,20 +125,52 @@ public class WebSocketHandler {
                 throw new RuntimeException(e);
             }
         }
-        else {
+        else if (!connections.connections.get(authToken).isPlayer) {
             try {
-                game.getGame().makeMove(move);
-                database.updateGame(gameID, game);
-                connections.broadcast(gameID, ALL, authToken, new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, game));
-                connections.broadcast(gameID, OTHER, authToken, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, getUsername(authToken) + " made move: " + move.toString()));
-            } catch (InvalidMoveException e) {
-                try {
-                    connections.broadcast(gameID, THIS, authToken, new ServerMessage(ServerMessage.ServerMessageType.ERROR, "Error: Invalid move.\n"));
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                }
+                connections.broadcast(gameID, THIS, authToken, new ServerMessage( "Error: Observer cannot make moves.\n", ServerMessage.ServerMessageType.ERROR));
             } catch (IOException e) {
                 throw new RuntimeException(e);
+            }
+        }
+        else {
+            ChessGame.TeamColor color = null;
+            if (game.getWhiteUsername() != null) {
+                if (game.getWhiteUsername().equals(getUsername(authToken))) {
+                    color = ChessGame.TeamColor.WHITE;
+                }
+            }
+            else if (game.getBlackUsername() != null) {
+                if (game.getBlackUsername().equals(getUsername(authToken))) {
+                    color = ChessGame.TeamColor.BLACK;
+                }
+            }
+            ChessPiece piece = game.getGame().getBoard().getPiece(move.getStartPosition());
+            boolean invalidMove = false;
+            if (piece != null) {
+                if (piece.getTeamColor() != color) {
+                    invalidMove = true;
+                    try {
+                        connections.broadcast(gameID, THIS, authToken, new ServerMessage("Error: Not your turn.\n", ServerMessage.ServerMessageType.ERROR));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+            if (!invalidMove) {
+                try {
+                    game.getGame().makeMove(move);
+                    database.updateGame(gameID, game);
+                    connections.broadcast(gameID, ALL, authToken, new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, game));
+                    connections.broadcast(gameID, OTHER, authToken, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, getUsername(authToken) + " made move: " + move.toString()));
+                } catch (InvalidMoveException e) {
+                    try {
+                        connections.broadcast(gameID, THIS, authToken, new ServerMessage("Error: Invalid move.\n", ServerMessage.ServerMessageType.ERROR));
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }
@@ -167,13 +218,15 @@ public class WebSocketHandler {
                 throw new RuntimeException(e);
             }
         }
-        game.setOver(true);
-        database.updateGame(gameID, game);
-        try {
-            connections.broadcast(gameID, ALL, authToken,  new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                    getUsername(authToken) + " has resigned.\n"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        else {
+            game.setOver(true);
+            database.updateGame(gameID, game);
+            try {
+                connections.broadcast(gameID, ALL, authToken, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                        getUsername(authToken) + " has resigned.\n"));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
