@@ -17,8 +17,18 @@ import spark.Spark;
 import webSocketMessages.userCommands.*;
 import webSocketMessages.serverMessages.*;
 
+import java.io.IOException;
+
+import static server.WebSocketHandler.ClientsToNotify.OTHER;
+import static server.WebSocketHandler.ClientsToNotify.THIS;
+
 @WebSocket
 public class WebSocketHandler {
+    public enum ClientsToNotify {
+        ALL,
+        OTHER,
+        THIS
+    }
 
     private final ConnectionManager connections = new ConnectionManager();
     private final Database database = new Database();
@@ -27,59 +37,92 @@ public class WebSocketHandler {
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws Exception {
         UserGameCommand userGameCommand = new Gson().fromJson(message, UserGameCommand.class);
-        ServerMessage serverMessage;
         switch (userGameCommand.getCommandType()) {
-            case JOIN_PLAYER -> serverMessage = joinPlayer(userGameCommand.getAuthString(), userGameCommand.getGameID(), userGameCommand.getPlayerColor(), session);
-            case JOIN_OBSERVER -> serverMessage = joinObserver(userGameCommand.getAuthString(), userGameCommand.getGameID(), session);
-            case MAKE_MOVE -> serverMessage = makeMove(userGameCommand.getAuthString(), userGameCommand.getGameID(), userGameCommand.getChessMove(), session);
-            case LEAVE -> serverMessage = leave(userGameCommand.getAuthString(), userGameCommand.getGameID(), session);
-            case RESIGN -> serverMessage = resign(userGameCommand.getAuthString(), userGameCommand.getGameID(), session);
+            case JOIN_PLAYER -> joinPlayer(userGameCommand.getAuthString(), userGameCommand.getGameID(), userGameCommand.getPlayerColor(), session);
+            case JOIN_OBSERVER -> joinObserver(userGameCommand.getAuthString(), userGameCommand.getGameID(), session);
+            case MAKE_MOVE -> makeMove(userGameCommand.getAuthString(), userGameCommand.getGameID(), userGameCommand.getChessMove(), session);
+            case LEAVE -> leave(userGameCommand.getAuthString(), userGameCommand.getGameID(), session);
+            case RESIGN -> resign(userGameCommand.getAuthString(), userGameCommand.getGameID(), session);
         }
     }
 
-    private ServerMessage joinPlayer(String authToken, int gameID, ChessGame.TeamColor playerColor, Session session) {
+    private void joinPlayer(String authToken, int gameID, ChessGame.TeamColor playerColor, Session session) {
         JoinResult joinResult = services.join(new JoinRequest(new AuthToken(authToken, getUsername(authToken)), playerColor, gameID));
         if (joinResult.getResponseCode() != services.OK) {
-            return new ServerMessage(joinResult.getMessage(), ServerMessage.ServerMessageType.ERROR);
+            try {
+                connections.broadcast(gameID, THIS, authToken, new ServerMessage(joinResult.getMessage(), ServerMessage.ServerMessageType.ERROR));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
         else {
             connections.add(authToken, gameID, true, session);
-            return new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                    getUsername(authToken) + " joined the game as " + playerColor.toString() + " player.\n");
+            try {
+                connections.broadcast(gameID, OTHER, authToken, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                        getUsername(authToken) + " joined the game as " + playerColor.toString() + " player.\n"));
+                connections.broadcast(gameID, THIS, authToken, new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, database.getGame(gameID)));
+            }
+            catch(IOException ex) {
+                throw new RuntimeException(ex);
+            }
+
         }
     }
 
-    private ServerMessage joinObserver(String authToken, int gameID, Session session) {
+    private void joinObserver(String authToken, int gameID, Session session) {
         JoinResult joinResult = services.join(new JoinRequest(new AuthToken(authToken, getUsername(authToken)), gameID));
         if (joinResult.getResponseCode() != services.OK) {
-            return new ServerMessage(joinResult.getMessage(), ServerMessage.ServerMessageType.ERROR);
+            try {
+                connections.broadcast(gameID, THIS, authToken, new ServerMessage(joinResult.getMessage(), ServerMessage.ServerMessageType.ERROR));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
         else {
             connections.add(authToken, gameID, false, session);
-            return new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                    getUsername(authToken) + " joined the game as observer.\n");
+            try {
+                connections.broadcast(gameID, OTHER, authToken, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                        getUsername(authToken) + " joined the game as observer.\n"));
+                connections.broadcast(gameID, THIS, authToken, new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, database.getGame(gameID)));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
-    private ServerMessage makeMove(String authToken, int gameID, ChessMoveImpl move, Session session) {
-        ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
-        return serverMessage;
+    private void makeMove(String authToken, int gameID, ChessMoveImpl move, Session session) {
+
     }
 
-    private ServerMessage leave(String authToken, int gameID, Session session) {
+    private void leave(String authToken, int gameID, Session session) {
         LogoutResult logoutResult = services.logout(new LogoutRequest(new AuthToken(authToken, getUsername(authToken))));
         if (logoutResult.getResponseCode() != services.OK) {
-            return new ServerMessage(logoutResult.getMessage(), ServerMessage.ServerMessageType.ERROR);
+            try {
+                connections.broadcast(gameID, THIS, authToken, new ServerMessage(logoutResult.getMessage(), ServerMessage.ServerMessageType.ERROR));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
         else {
+            Game game = database.getGame(gameID);
+            if (game.getWhiteUsername().equals(getUsername(authToken))) {
+                game.setWhiteUsername(null);
+            }
+            else if (game.getBlackUsername().equals(getUsername(authToken))) {
+                game.setBlackUsername(null);
+            }
+            database.updateGame(gameID, game);
             connections.remove(authToken);
-            return new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, getUsername(authToken) + " has left the game.\n");
+            try {
+                connections.broadcast(gameID, OTHER, authToken, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, getUsername(authToken) + " has left the game.\n"));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
-    private ServerMessage resign(String authToken, int gameID, Session session) {
-        ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
-        return serverMessage;
+    private void resign(String authToken, int gameID, Session session) {
+
     }
 
     private String getUsername(String authToken) {

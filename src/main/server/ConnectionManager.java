@@ -23,13 +23,29 @@ public class ConnectionManager {
         connections.remove(authToken);
     }
 
-    public void broadcast(int gameID, ServerMessage serverMessage) throws IOException {
+    public void broadcast(int gameID, WebSocketHandler.ClientsToNotify clientsToNotify, String authToken, ServerMessage serverMessage) throws IOException {
         var removeList = new ArrayList<Connection>();
         for (Connection connection : connections.values()) {
             if (connection.session.isOpen()) {
-                if (connection.gameID == gameID) {
-                    connection.send(serverMessage);
+                switch (clientsToNotify) {
+
+                    case ALL -> {
+                        if (connection.gameID == gameID) {
+                            connection.send(serverMessage);
+                        }
+                    }
+                    case OTHER -> {
+                        if (connection.gameID == gameID && !connection.authToken.equals(authToken)) {
+                            connection.send(serverMessage);
+                        }
+                    }
+                    case THIS -> {
+                        if (connection.authToken.equals(authToken)) {
+                            connection.send(serverMessage);
+                        }
+                    }
                 }
+
             } else {
                 removeList.add(connection);
             }

@@ -16,6 +16,8 @@ public class Game {
     private String gameName = "";
     private ChessGame game = new ChessGameImpl();
 
+    private boolean isOver = false;
+
     public int getGameID() {
         return gameID;
     }
@@ -55,6 +57,10 @@ public class Game {
     public void setGame(ChessGame game) {
         this.game = game;
     }
+
+    public boolean isOver() { return isOver; }
+
+    public void setOver(boolean over) { isOver = over; }
 
     @Override
     public boolean equals(Object o) {

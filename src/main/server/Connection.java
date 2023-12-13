@@ -1,9 +1,11 @@
 package server;
 
+import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import webSocketMessages.serverMessages.ServerMessage;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 public class Connection {
     public String authToken;
@@ -20,11 +22,6 @@ public class Connection {
     }
 
     public void send(ServerMessage serverMessage) throws IOException {
-        switch (serverMessage.getServerMessageType()) {
-            case LOAD_GAME -> session.getRemote().sendString("temp");//session.getRemote().sendBytes(serverMessage.getGame().);
-            case ERROR -> session.getRemote().sendString(serverMessage.getErrorMessage());
-            case NOTIFICATION -> session.getRemote().sendString(serverMessage.getMessage());
-        }
-
+        session.getRemote().sendString(new Gson().toJson(serverMessage));
     }
 }
