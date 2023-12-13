@@ -239,9 +239,6 @@ public class WebSocketHandler {
     public static Gson createGsonDeserializer() {
         GsonBuilder gsonBuilder = new GsonBuilder();
 
-        // This line should only be needed if your board class is using a Map to store chess pieces instead of a 2D array.
-        //gsonBuilder.enableComplexMapKeySerialization();
-
         gsonBuilder.registerTypeAdapter(ChessGame.class,
                 (JsonDeserializer<ChessGame>) (el, type, ctx) -> ctx.deserialize(el, ChessGameImpl.class));
 
