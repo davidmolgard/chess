@@ -245,10 +245,7 @@ public class Main {
 
    private static void playGame(AuthToken authToken, String username, int gameID, int gameIndex, TeamColor color) {
         System.out.print("Joined game as " + username + "\n");
-        drawBoard(gameIndex, WHITE);
-        PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-        out.println();
-        drawBoard(gameIndex, BLACK);
+        drawBoard(gameIndex, color);
    }
 
    private static void observeGame(AuthToken authToken, String username, int gameID, int gameIndex) {
@@ -256,8 +253,6 @@ public class Main {
    }
 
    private static void drawBoard(int gameIndex, TeamColor color) {
-        games.get(gameIndex).getGame().getBoard().resetBoard();
-
        PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
        out.print(ERASE_SCREEN);
        if (color == BLACK) {
