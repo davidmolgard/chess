@@ -1,4 +1,5 @@
 import com.google.gson.Gson;
+import webSocketMessages.serverMessages.ServerMessage;
 
 import javax.websocket.*;
 import java.io.IOException;
@@ -9,16 +10,21 @@ import java.net.URISyntaxException;
 public class WebSocketFacade extends Endpoint {
 
     Session session;
+    ServerMessageObserver serverMessageObserver;
 
 
-    public WebSocketFacade() throws Exception {
+    public WebSocketFacade(ServerMessageObserver serverMessageObserver) throws Exception {
         URI uri = new URI("ws://localhost:8080/connect");
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         this.session = container.connectToServer(this, uri);
+        this.serverMessageObserver = serverMessageObserver;
 
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+            @Override
             public void onMessage(String message) {
-                System.out.println(message);
+                Gson deserializer = ServerFacade.createGsonDeserializer();
+                ServerMessage serverMessage = deserializer.fromJson(message, ServerMessage.class);
+                serverMessageObserver.notify(serverMessage);
             }
         });
     }
