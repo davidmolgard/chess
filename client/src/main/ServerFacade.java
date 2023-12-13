@@ -162,10 +162,10 @@ public class ServerFacade {
             if (http.getResponseCode() == 200) {
                 Map<String, Game[]> responseMap;
                 Type mapType = new TypeToken<Map<String, Game[]>>() {}.getType();
-                createGameBuilder();
+                Gson deserializer = createGsonDeserializer();
                 try (InputStream respBody = http.getInputStream()) {
                     InputStreamReader inputStreamReader = new InputStreamReader(respBody);
-                    responseMap = gameBuilder.create().fromJson(inputStreamReader, mapType);
+                    responseMap = deserializer.fromJson(inputStreamReader, mapType);
                     return new ListResult(responseMap.get("games"));
                 }
             }
@@ -281,7 +281,32 @@ public class ServerFacade {
         return errorCode;
     }
 
-    public class GameAdapter implements JsonDeserializer<ChessGame> {
+    public static Gson createGsonDeserializer() {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+
+        // This line should only be needed if your board class is using a Map to store chess pieces instead of a 2D array.
+        gsonBuilder.enableComplexMapKeySerialization();
+
+        gsonBuilder.registerTypeAdapter(ChessGame.class,
+                (JsonDeserializer<ChessGame>) (el, type, ctx) -> ctx.deserialize(el, ChessGameImpl.class));
+
+        gsonBuilder.registerTypeAdapter(ChessBoard.class,
+                (JsonDeserializer<ChessBoard>) (el, type, ctx) -> ctx.deserialize(el, ChessBoardImpl.class));
+
+        gsonBuilder.registerTypeAdapter(ChessPiece.class,
+                (JsonDeserializer<ChessPiece>) (el, type, ctx) -> ctx.deserialize(el, ChessPieceImpl.class));
+
+        gsonBuilder.registerTypeAdapter(ChessMove.class,
+                (JsonDeserializer<ChessMove>) (el, type, ctx) -> ctx.deserialize(el, ChessMoveImpl.class));
+
+        gsonBuilder.registerTypeAdapter(ChessPosition.class,
+                (JsonDeserializer<ChessPosition>) (el, type, ctx) -> ctx.deserialize(el, ChessPositionImpl.class));
+
+
+        return gsonBuilder.create();
+    }
+
+    /*public class GameAdapter implements JsonDeserializer<ChessGame> {
         @Override
         public ChessGame deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
             GsonBuilder builder = new GsonBuilder();
@@ -311,6 +336,6 @@ public class ServerFacade {
         gameBuilder.registerTypeAdapter(ChessGame.class, new GameAdapter());
         gameBuilder.registerTypeAdapter(ChessBoard.class, new BoardAdapter());
         gameBuilder.registerTypeAdapter(ChessPiece.class, new PieceAdapter());
-    }
+    } */
 
 }

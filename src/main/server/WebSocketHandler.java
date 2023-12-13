@@ -4,11 +4,10 @@ import RequestResultClasses.joinClasses.JoinRequest;
 import RequestResultClasses.joinClasses.JoinResult;
 import RequestResultClasses.logoutClasses.LogoutRequest;
 import RequestResultClasses.logoutClasses.LogoutResult;
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.ChessMoveImpl;
-import chess.InvalidMoveException;
+import chess.*;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
 import dataAccess.Database;
 import models.AuthToken;
 import models.Game;
@@ -36,13 +35,21 @@ public class WebSocketHandler {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws Exception {
-        UserGameCommand userGameCommand = new Gson().fromJson(message, UserGameCommand.class);
-        switch (userGameCommand.getCommandType()) {
-            case JOIN_PLAYER -> joinPlayer(userGameCommand.getAuthString(), userGameCommand.getGameID(), userGameCommand.getPlayerColor(), session);
-            case JOIN_OBSERVER -> joinObserver(userGameCommand.getAuthString(), userGameCommand.getGameID(), session);
-            case MAKE_MOVE -> makeMove(userGameCommand.getAuthString(), userGameCommand.getGameID(), userGameCommand.getChessMove(), session);
-            case LEAVE -> leave(userGameCommand.getAuthString(), userGameCommand.getGameID(), session);
-            case RESIGN -> resign(userGameCommand.getAuthString(), userGameCommand.getGameID(), session);
+        Gson deserializer = createGsonDeserializer();
+        UserGameCommand userGameCommand = deserializer.fromJson(message, UserGameCommand.class);
+        AuthToken authToken = new AuthToken();
+        authToken.setAuthToken(userGameCommand.getAuthString());
+        if (database.isAuthorized(authToken)) {
+            switch (userGameCommand.getCommandType()) {
+                case JOIN_PLAYER -> joinPlayer(userGameCommand.getAuthString(), userGameCommand.getGameID(), userGameCommand.getPlayerColor(), session);
+                case JOIN_OBSERVER -> joinObserver(userGameCommand.getAuthString(), userGameCommand.getGameID(), session);
+                case MAKE_MOVE -> makeMove(userGameCommand.getAuthString(), userGameCommand.getGameID(), userGameCommand.getChessMove(), session);
+                case LEAVE -> leave(userGameCommand.getAuthString(), userGameCommand.getGameID(), session);
+                case RESIGN -> resign(userGameCommand.getAuthString(), userGameCommand.getGameID(), session);
+            }
+        }
+        else {
+            session.getRemote().sendString(new Gson().toJson(new ServerMessage("Error: Not authorized\n", ServerMessage.ServerMessageType.ERROR)));
         }
     }
 
@@ -94,7 +101,7 @@ public class WebSocketHandler {
         Game game = database.getGame(gameID);
         if (game.isOver()) {
             try {
-                connections.broadcast(gameID, THIS, authToken, new ServerMessage(ServerMessage.ServerMessageType.ERROR, "Error: Game is over.\n"));
+                connections.broadcast(gameID, THIS, authToken, new ServerMessage( "Error: Game is over.\n", ServerMessage.ServerMessageType.ERROR));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -146,6 +153,20 @@ public class WebSocketHandler {
 
     private void resign(String authToken, int gameID, Session session) {
         Game game = database.getGame(gameID);
+        if (!connections.connections.get(authToken).isPlayer) {
+            try {
+                connections.broadcast(gameID, THIS, authToken, new ServerMessage("Error: Observers cannot resign\n", ServerMessage.ServerMessageType.ERROR));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        else if (game.isOver()) {
+            try {
+                connections.broadcast(gameID, THIS, authToken, new ServerMessage("Error: Game is already over\n", ServerMessage.ServerMessageType.ERROR));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
         game.setOver(true);
         database.updateGame(gameID, game);
         try {
@@ -160,6 +181,31 @@ public class WebSocketHandler {
         AuthToken authTokenTemp = new AuthToken();
         authTokenTemp.setAuthToken(authToken);
         return database.getUsername(authTokenTemp);
+    }
+
+    public static Gson createGsonDeserializer() {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+
+        // This line should only be needed if your board class is using a Map to store chess pieces instead of a 2D array.
+        //gsonBuilder.enableComplexMapKeySerialization();
+
+        gsonBuilder.registerTypeAdapter(ChessGame.class,
+                (JsonDeserializer<ChessGame>) (el, type, ctx) -> ctx.deserialize(el, ChessGameImpl.class));
+
+        gsonBuilder.registerTypeAdapter(ChessBoard.class,
+                (JsonDeserializer<ChessBoard>) (el, type, ctx) -> ctx.deserialize(el, ChessBoardImpl.class));
+
+        gsonBuilder.registerTypeAdapter(ChessPiece.class,
+                (JsonDeserializer<ChessPiece>) (el, type, ctx) -> ctx.deserialize(el, ChessPieceImpl.class));
+
+        gsonBuilder.registerTypeAdapter(ChessMove.class,
+                (JsonDeserializer<ChessMove>) (el, type, ctx) -> ctx.deserialize(el, ChessMoveImpl.class));
+
+        gsonBuilder.registerTypeAdapter(ChessPosition.class,
+                (JsonDeserializer<ChessPosition>) (el, type, ctx) -> ctx.deserialize(el, ChessPositionImpl.class));
+
+
+        return gsonBuilder.create();
     }
 
 }
