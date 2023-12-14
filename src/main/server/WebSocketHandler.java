@@ -16,6 +16,8 @@ import webSocketMessages.serverMessages.*;
 
 import java.io.IOException;
 
+import static chess.ChessGame.TeamColor.BLACK;
+import static chess.ChessGame.TeamColor.WHITE;
 import static server.WebSocketHandler.ClientsToNotify.*;
 
 @WebSocket
@@ -60,14 +62,14 @@ public class WebSocketHandler {
         }
         else {
             boolean correctTeam = false;
-            if (playerColor == ChessGame.TeamColor.WHITE) {
+            if (playerColor == WHITE) {
                 if (database.getGame(gameID).getWhiteUsername() != null) {
                     if (database.getGame(gameID).getWhiteUsername().equals(getUsername(authToken))) {
                         correctTeam = true;
                     }
                 }
             }
-            else if (playerColor == ChessGame.TeamColor.BLACK) {
+            else if (playerColor == BLACK) {
                 if (database.getGame(gameID).getBlackUsername() != null) {
                     if (database.getGame(gameID).getBlackUsername().equals(getUsername(authToken))) {
                         correctTeam = true;
@@ -136,12 +138,12 @@ public class WebSocketHandler {
             ChessGame.TeamColor color = null;
             if (game.getWhiteUsername() != null) {
                 if (game.getWhiteUsername().equals(getUsername(authToken))) {
-                    color = ChessGame.TeamColor.WHITE;
+                    color = WHITE;
                 }
             }
             else if (game.getBlackUsername() != null) {
                 if (game.getBlackUsername().equals(getUsername(authToken))) {
-                    color = ChessGame.TeamColor.BLACK;
+                    color = BLACK;
                 }
             }
             ChessPiece piece = game.getGame().getBoard().getPiece(move.getStartPosition());
@@ -161,7 +163,29 @@ public class WebSocketHandler {
                     game.getGame().makeMove(move);
                     database.updateGame(gameID, game);
                     connections.broadcast(gameID, ALL, authToken, new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, game));
-                    connections.broadcast(gameID, OTHER, authToken, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, getUsername(authToken) + " made move: " + move.toString()));
+                    char[] pos1 = new char[2];
+                    char[] pos2 = new char[2];
+                    pos1[0] = (char)(('a'-1) + move.getStartPosition().getColumn());
+                    pos1[1] = (char)('0' + move.getStartPosition().getRow());
+                    pos2[0] = (char)(('a'-1) + move.getEndPosition().getColumn());
+                    pos2[1] = (char)('0' + move.getEndPosition().getRow());
+
+                    connections.broadcast(gameID, OTHER, authToken, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, getUsername(authToken) + " made move: "
+                            + pos1.toString() + " to " + pos2.toString() + "\n"));
+                    if (game.getGame().isInCheckmate(WHITE)) {
+                        connections.broadcast(gameID, ALL, authToken, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, "WHITE player is in checkmate. Game is over.\n"));
+                        game.setOver(true);
+                    }
+                    else if (game.getGame().isInCheckmate(BLACK)) {
+                        connections.broadcast(gameID, ALL, authToken, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, "BLACK player is in checkmate. Game is over.\n"));
+                        game.setOver(true);
+                    }
+                    else if (game.getGame().isInCheck(WHITE)) {
+                        connections.broadcast(gameID, ALL, authToken, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, "WHITE player is in check.\n"));
+                    }
+                    else if (game.getGame().isInCheck(BLACK)) {
+                        connections.broadcast(gameID, ALL, authToken, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, "BLACK player is in check.\n"));
+                    }
                 } catch (InvalidMoveException e) {
                     try {
                         connections.broadcast(gameID, THIS, authToken, new ServerMessage("Error: Invalid move.\n", ServerMessage.ServerMessageType.ERROR));
