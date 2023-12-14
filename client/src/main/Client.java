@@ -288,8 +288,8 @@ public class Client implements ServerMessageObserver {
                                     errorMessage = "invalid positions.";
                                 }
                                 else {
-                                    ChessPositionImpl position1 = new ChessPositionImpl(xpos1, ypos1);
-                                    ChessPositionImpl position2 = new ChessPositionImpl(xpos2, ypos2);
+                                    ChessPositionImpl position1 = new ChessPositionImpl(ypos1, xpos1);
+                                    ChessPositionImpl position2 = new ChessPositionImpl(ypos2, xpos2);
                                     ChessMoveImpl move = new ChessMoveImpl(position1, position2);
                                     webSocketFacade.makeMove(authToken.getAuthToken(), gameID, move);
                                     validInput = true;
@@ -311,7 +311,7 @@ public class Client implements ServerMessageObserver {
                                 errorMessage = "invalid positions.";
                             }
                             else {
-                                ChessPositionImpl position = new ChessPositionImpl(xpos, ypos);
+                                ChessPositionImpl position = new ChessPositionImpl(ypos, xpos);
                                 highlightMoves(gameID, position);
                             }
                         }
