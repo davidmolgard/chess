@@ -141,20 +141,30 @@ public class WebSocketHandler {
                     color = WHITE;
                 }
             }
-            else if (game.getBlackUsername() != null) {
+            if (game.getBlackUsername() != null) {
                 if (game.getBlackUsername().equals(getUsername(authToken))) {
                     color = BLACK;
                 }
             }
-            ChessPiece piece = game.getGame().getBoard().getPiece(move.getStartPosition());
             boolean invalidMove = false;
-            if (piece != null) {
-                if (piece.getTeamColor() != color) {
-                    invalidMove = true;
-                    try {
-                        connections.broadcast(gameID, THIS, authToken, new ServerMessage("Error: Not your turn.\n", ServerMessage.ServerMessageType.ERROR));
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+            if (game.getGame().getTeamTurn() != color) {
+                invalidMove = true;
+                try {
+                    connections.broadcast(gameID, THIS, authToken, new ServerMessage("Error: Not your turn.\n", ServerMessage.ServerMessageType.ERROR));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            else {
+                ChessPiece piece = game.getGame().getBoard().getPiece(move.getStartPosition());
+                if (piece != null) {
+                    if (piece.getTeamColor() != color) {
+                        invalidMove = true;
+                        try {
+                            connections.broadcast(gameID, THIS, authToken, new ServerMessage("Error: Can't move opponent's piece.\n", ServerMessage.ServerMessageType.ERROR));
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }
             }
@@ -163,15 +173,17 @@ public class WebSocketHandler {
                     game.getGame().makeMove(move);
                     database.updateGame(gameID, game);
                     connections.broadcast(gameID, ALL, authToken, new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, game));
-                    char[] pos1 = new char[2];
-                    char[] pos2 = new char[2];
-                    pos1[0] = (char)(('a'-1) + move.getStartPosition().getColumn());
-                    pos1[1] = (char)('0' + move.getStartPosition().getRow());
-                    pos2[0] = (char)(('a'-1) + move.getEndPosition().getColumn());
-                    pos2[1] = (char)('0' + move.getEndPosition().getRow());
+                    char[] pos1Array = new char[2];
+                    char[] pos2Array = new char[2];
+                    pos1Array[0] = (char)(('a'-1) + move.getStartPosition().getColumn());
+                    pos1Array[1] = (char)('0' + move.getStartPosition().getRow());
+                    pos2Array[0] = (char)(('a'-1) + move.getEndPosition().getColumn());
+                    pos2Array[1] = (char)('0' + move.getEndPosition().getRow());
+                    String pos1 = new String(pos1Array);
+                    String pos2 = new String(pos2Array);
 
                     connections.broadcast(gameID, OTHER, authToken, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, getUsername(authToken) + " made move: "
-                            + pos1.toString() + " to " + pos2.toString() + "\n"));
+                            + pos1 + " to " + pos2 + "\n"));
                     if (game.getGame().isInCheckmate(WHITE)) {
                         connections.broadcast(gameID, ALL, authToken, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, "WHITE player is in checkmate. Game is over.\n"));
                         game.setOver(true);
@@ -200,30 +212,32 @@ public class WebSocketHandler {
     }
 
     private void leave(String authToken, int gameID, Session session) {
-        LogoutResult logoutResult = services.logout(new LogoutRequest(new AuthToken(authToken, getUsername(authToken))));
-        if (logoutResult.getResponseCode() != services.OK) {
-            try {
-                connections.broadcast(gameID, THIS, authToken, new ServerMessage(logoutResult.getMessage(), ServerMessage.ServerMessageType.ERROR));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+        String username = getUsername(authToken);
+        Game game = database.getGame(gameID);
+        ChessGame.TeamColor color = null;
+        if (game.getWhiteUsername() != null) {
+            if (game.getWhiteUsername().equals(username)) {
+                color = WHITE;
             }
         }
-        else {
-            Game game = database.getGame(gameID);
-            if (game.getWhiteUsername().equals(getUsername(authToken))) {
-                game.setWhiteUsername(null);
+        if (game.getBlackUsername() != null) {
+            if (game.getBlackUsername().equals(username)) {
+                color = BLACK;
             }
-            else if (game.getBlackUsername().equals(getUsername(authToken))) {
-                game.setBlackUsername(null);
-            }
-            database.updateGame(gameID, game);
-            String notificationString = getUsername(authToken) + " has left the game.\n";
-            connections.remove(authToken);
-            try {
-                connections.broadcast(gameID, OTHER, authToken, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, notificationString));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+        }
+        String notificationString = username + " has left the game.\n";
+        if (color == WHITE) {
+            game.setWhiteUsername(null);
+        }
+        else if (color == BLACK){
+            game.setBlackUsername(null);
+        }
+        database.updateGame(gameID, game);
+        connections.remove(authToken);
+        try {
+            connections.broadcast(gameID, OTHER, authToken, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, notificationString));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

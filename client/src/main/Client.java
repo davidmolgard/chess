@@ -138,21 +138,19 @@ public class Client implements ServerMessageObserver {
                     System.out.print("Logged out.\n");
                     return;
                 } else {
-                    validInput = true;
-                    System.out.print(logoutResult.getMessage() + "\n");
+                    errorMessage = logoutResult.getMessage() + "\n";
                 }
             } else if (line.equals("LIST")) {
-                ListResult listResult = serverFacade.list(authToken);
-                validInput = true;
-                if (listResult.getResponseCode() == 200) {
-                    games.clear();
-                    games.addAll(Arrays.asList(listResult.getGames()));
+                String listSuccess = populateGameArray(authToken);
+                if (listSuccess.equals("OK")) {
+                    validInput = true;
                     for (int i = 0; i < games.size(); i++) {
                         System.out.print(i + 1 + " " + games.get(i).getGameName() + " White Player: " + games.get(i).getWhiteUsername()
                                 + " Black Player: " + games.get(i).getBlackUsername() + "\n");
                     }
-                } else {
-                    System.out.print(listResult.getMessage() + "\n");
+                }
+                else {
+                    errorMessage = listSuccess + "\n";
                 }
             }
             String[] words = line.split(" ");
@@ -178,28 +176,37 @@ public class Client implements ServerMessageObserver {
                     if (words.length < 3) {
                         errorMessage = "Not enough parameters.";
                     } else {
-                        validInput = true;
-                        TeamColor teamColor = WHITE;
-                        if (words[2].equals("BLACK")) {
-                            teamColor = TeamColor.BLACK;
-                        }
-                        int gameIndex = Integer.parseInt(words[1]);
-                        gameIndex--;
-                        int gameID = games.get(gameIndex).getGameID();
+                        String listSuccess = null;
                         if (games.isEmpty()) {
-                            errorMessage = "no games found.";
-                        } else {
-                            if (gameIndex < 0 || gameIndex >= games.size()) {
-                                errorMessage = "invalid game ID.";
+                            listSuccess = populateGameArray(authToken);
+                        }
+                        if (listSuccess == null || listSuccess.equals("OK")) {
+                            TeamColor teamColor = WHITE;
+                            if (words[2].equals("BLACK")) {
+                                teamColor = TeamColor.BLACK;
+                            }
+                            int gameIndex = Integer.parseInt(words[1]);
+                            gameIndex--;
+                            int gameID = games.get(gameIndex).getGameID();
+                            if (games.isEmpty()) {
+                                errorMessage = "no games found.";
                             } else {
-                                JoinRequest joinRequest = new JoinRequest(authToken, teamColor, gameID);
-                                JoinResult joinResult = serverFacade.join(joinRequest);
-                                if (joinResult.getResponseCode() != 200) {
-                                    System.out.print(joinResult.getMessage() + "\n");
+                                if (gameIndex < 0 || gameIndex >= games.size()) {
+                                    errorMessage = "invalid game ID.";
                                 } else {
-                                    playGame(authToken, username, gameID, gameIndex, teamColor);
+                                    JoinRequest joinRequest = new JoinRequest(authToken, teamColor, gameID);
+                                    JoinResult joinResult = serverFacade.join(joinRequest);
+                                    if (joinResult.getResponseCode() != 200) {
+                                        errorMessage = joinResult.getMessage();
+                                    } else {
+                                        playGame(authToken, username, gameID, gameIndex, teamColor);
+                                        validInput = true;
+                                    }
                                 }
                             }
+                        }
+                        else {
+                            errorMessage = listSuccess;
                         }
                     }
                 }
@@ -207,16 +214,25 @@ public class Client implements ServerMessageObserver {
                     if (words.length < 2) {
                         errorMessage = "Not enough parameters.";
                     } else {
-                        validInput = true;
-                        int gameIndex = Integer.parseInt(words[1]);
-                        gameIndex--;
-                        int gameID = games.get(gameIndex).getGameID();
-                        JoinRequest joinRequest = new JoinRequest(authToken, gameID);
-                        JoinResult joinResult = serverFacade.join(joinRequest);
-                        if (joinResult.getResponseCode() != 200) {
-                            System.out.print(joinResult.getMessage() + "\n");
-                        } else {
-                            observeGame(authToken, username, gameID, gameIndex);
+                        String listSuccess = null;
+                        if (games.isEmpty()) {
+                            listSuccess = populateGameArray(authToken);
+                        }
+                        if (listSuccess == null || listSuccess.equals("OK")) {
+                            int gameIndex = Integer.parseInt(words[1]);
+                            gameIndex--;
+                            int gameID = games.get(gameIndex).getGameID();
+                            JoinRequest joinRequest = new JoinRequest(authToken, gameID);
+                            JoinResult joinResult = serverFacade.join(joinRequest);
+                            if (joinResult.getResponseCode() != 200) {
+                                errorMessage = joinResult.getMessage();
+                            } else {
+                                observeGame(authToken, username, gameID, gameIndex);
+                                validInput = true;
+                            }
+                        }
+                        else {
+                            errorMessage = listSuccess;
                         }
                     }
                 }
@@ -238,6 +254,18 @@ public class Client implements ServerMessageObserver {
         System.out.print("CREATE <NAME> - creates new game with NAME\n");
         System.out.print("JOIN <ID> [WHITE|BLACK] - join game as player with given color\n");
         System.out.print("OBSERVE <ID> - join game as observer\n");
+    }
+
+    private String populateGameArray(AuthToken authToken) {
+        ListResult listResult = serverFacade.list(authToken);
+        if (listResult.getResponseCode() == 200) {
+            games.clear();
+            games.addAll(Arrays.asList(listResult.getGames()));
+            return "OK";
+        }
+        else {
+            return listResult.getMessage();
+        }
     }
 
     private void playGame(AuthToken authToken, String username, int gameID, int gameIndex, TeamColor color) {
@@ -308,11 +336,12 @@ public class Client implements ServerMessageObserver {
                             int xpos = ((int) pos[0] - 96);
                             int ypos = ((int) pos[1] - 48);
                             if (xpos < 1 || ypos < 1 || xpos > 8 || ypos > 8) {
-                                errorMessage = "invalid positions.";
+                                errorMessage = "invalid position.";
                             }
                             else {
                                 ChessPositionImpl position = new ChessPositionImpl(ypos, xpos);
                                 highlightMoves(gameID, position);
+                                validInput = true;
                             }
                         }
                     }
@@ -339,13 +368,40 @@ public class Client implements ServerMessageObserver {
             switch (line) {
                 case "HELP":
                     helpObserve();
+                    validInput = true;
                     break;
                 case "LEAVE":
                     webSocketFacade.leave(authToken.getAuthToken(), gameID);
-                    break label;
+                    return;
                 case "REDRAW":
                     drawBoard(gameIndexUniversal, playerColor);
+                    validInput = true;
                     break;
+            }
+            String[] words = line.split(" ");
+            if (words[0].equals("HIGHLIGHT")) {
+                if (words.length < 2) {
+                    errorMessage = "Not enough parameters.";
+                }
+                else {
+                    char[] pos = words[2].toCharArray();
+                    if (pos.length == 2) {
+                        int xpos = ((int) pos[0] - 96);
+                        int ypos = ((int) pos[1] - 48);
+                        if (xpos < 1 || ypos < 1 || xpos > 8 || ypos > 8) {
+                            errorMessage = "invalid position.";
+                        }
+                        else {
+                            ChessPositionImpl position = new ChessPositionImpl(ypos, xpos);
+                            highlightMoves(gameID, position);
+                            validInput = true;
+                        }
+                    }
+                }
+            }
+            if (!validInput) {
+                System.out.print("Invalid input. " + errorMessage + "\n");
+                System.out.print("Input HELP for a list of options.\n");
             }
         }
     }
