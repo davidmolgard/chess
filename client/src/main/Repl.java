@@ -52,7 +52,7 @@ public class Repl implements ServerMessageObserver {
     private static final String ROOK = " R ";
     private static final String PAWN = " P ";
 
-    private static int gameIDUniversal;
+    private static int gameIndexUniversal;
     private static TeamColor playerColor = WHITE;
 
     public Repl() {
@@ -242,16 +242,81 @@ public class Repl implements ServerMessageObserver {
         System.out.print("OBSERVE <ID> - join game as observer\n");
     }
 
-    private static void playGame(AuthToken authToken, String username, int gameID, int gameIndex, TeamColor color) {
+    private void playGame(AuthToken authToken, String username, int gameID, int gameIndex, TeamColor color) {
         playerColor = color;
-        gameIDUniversal = gameID;
+        gameIndexUniversal = gameIndex;
+        webSocketFacade.joinPlayer(authToken.getAuthToken(), gameID, color);
         System.out.print("Joined game as " + username + "\n");
-        drawBoard(gameIndex, color);
+        System.out.println("Type HELP to see options.");
+        label:
+        while (true) {
+            boolean validInput = false;
+            String errorMessage = "Please try again.";
+            Scanner scanner = new Scanner(System.in);
+            String line = scanner.nextLine();
+            switch (line) {
+                case "HELP":
+                    helpPlayer();
+                    break;
+                case "LEAVE":
+                    webSocketFacade.leave(authToken.getAuthToken(), gameID);
+                    break label;
+                case "RESIGN":
+                    webSocketFacade.resign(authToken.getAuthToken(), gameID);
+                    break;
+                case "REDRAW":
+                    drawBoard(gameIndexUniversal, playerColor);
+                    break;
+            }
+
+        }
     }
 
     private void observeGame(AuthToken authToken, String username, int gameID, int gameIndex) {
-        gameIDUniversal = gameID;
+        gameIndexUniversal = gameIndex;
         webSocketFacade.joinObserver(authToken.getAuthToken(),gameID);
+        System.out.println("Observing Game " + gameIndexUniversal);
+        System.out.println("Type HELP to see options.");
+        label:
+        while (true) {
+            boolean validInput = false;
+            String errorMessage = "Please try again.";
+            Scanner scanner = new Scanner(System.in);
+            String line = scanner.nextLine();
+            switch (line) {
+                case "HELP":
+                    helpObserve();
+                    break;
+                case "LEAVE":
+                    webSocketFacade.leave(authToken.getAuthToken(), gameID);
+                    break label;
+                case "REDRAW":
+                    drawBoard(gameIndexUniversal, playerColor);
+                    break;
+            }
+        }
+    }
+
+    private static void helpObserve() {
+        System.out.print("Type an option EXACTLY as listed\n");
+        System.out.print("--------------------------------------\n");
+        System.out.print("HELP - displays available options\n");
+        System.out.print("LEAVE - ends observation\n");
+        System.out.print("REDRAW - redraws chess board\n");
+        System.out.print("HIGHLIGHT <PIECE POSITION> - highlights all legal moves of piece given\n");
+        System.out.print("Input piece position in standard chess notation. i.e. a5\n");
+    }
+
+    private static void helpPlayer() {
+        System.out.print("Type an option EXACTLY as listed\n");
+        System.out.print("--------------------------------------\n");
+        System.out.print("HELP - displays available options\n");
+        System.out.print("LEAVE - leaves the game\n");
+        System.out.print("MAKE MOVE <START POSITION> <END POSITION> - moves a piece\n");
+        System.out.print("RESIGN - forfeits the game\n");
+        System.out.print("REDRAW - redraws chess board\n");
+        System.out.print("HIGHLIGHT <POSITION> - highlights all legal moves of piece at position\n");
+        System.out.print("Input piece positions in standard chess notation. i.e. a5\n");
     }
 
     private static void drawBoard(int gameIndex, TeamColor color) {
@@ -290,7 +355,7 @@ public class Repl implements ServerMessageObserver {
     }
 
     private static void printBoardRow(PrintStream out, TeamColor color, int row, int gameIndex) {
-        int whiteSquare = 1;
+        int whiteSquare = 0;
         int currColor = row % 2;
         if (color == TeamColor.BLACK) {
             currColor = (currColor + 1) % 2;
@@ -379,7 +444,10 @@ public class Repl implements ServerMessageObserver {
     @Override
     public void notify(ServerMessage message) {
         switch (message.getServerMessageType()) {
-            case LOAD_GAME -> drawBoard(gameIDUniversal, playerColor);
+            case LOAD_GAME ->  {
+                games.set(gameIndexUniversal, message.getGame());
+                drawBoard(gameIndexUniversal, playerColor);
+            }
             case ERROR -> System.out.println(message.getErrorMessage());
             case NOTIFICATION -> System.out.print(message.getMessage());
         }

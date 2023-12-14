@@ -37,16 +37,22 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void leave(String authToken) {
-
+    public void leave(String authToken, int gameID) {
+        UserGameCommand userGameCommand = new UserGameCommand(authToken, gameID);
+        userGameCommand.setCommandType(UserGameCommand.CommandType.LEAVE);
+        sendMessage(userGameCommand);
     }
 
-    public void makeMove(String authToken, ChessMove move) {
-
+    public void makeMove(String authToken, int gameID, ChessMove move) {
+        UserGameCommand userGameCommand = new UserGameCommand(authToken, gameID, move);
+        userGameCommand.setCommandType(UserGameCommand.CommandType.MAKE_MOVE);
+        sendMessage(userGameCommand);
     }
 
-    public void resign(String authToken) {
-
+    public void resign(String authToken, int gameID) {
+        UserGameCommand userGameCommand = new UserGameCommand(authToken, gameID);
+        userGameCommand.setCommandType(UserGameCommand.CommandType.RESIGN);
+        sendMessage(userGameCommand);
     }
 
     public void joinPlayer(String authToken, int gameID, ChessGame.TeamColor playerColor) {
