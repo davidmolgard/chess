@@ -187,10 +187,12 @@ public class WebSocketHandler {
                     if (game.getGame().isInCheckmate(WHITE)) {
                         connections.broadcast(gameID, ALL, authToken, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, "WHITE player is in checkmate. Game is over.\n"));
                         game.setOver(true);
+                        database.updateGame(gameID, game);
                     }
                     else if (game.getGame().isInCheckmate(BLACK)) {
                         connections.broadcast(gameID, ALL, authToken, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, "BLACK player is in checkmate. Game is over.\n"));
                         game.setOver(true);
+                        database.updateGame(gameID, game);
                     }
                     else if (game.getGame().isInCheck(WHITE)) {
                         connections.broadcast(gameID, ALL, authToken, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, "WHITE player is in check.\n"));

@@ -10,6 +10,7 @@ import RequestResultClasses.logoutClasses.LogoutResult;
 import RequestResultClasses.registerClasses.RegisterRequest;
 import RequestResultClasses.registerClasses.RegisterResult;
 import chess.ChessGame.TeamColor;
+import chess.ChessMove;
 import chess.ChessMoveImpl;
 import chess.ChessPositionImpl;
 import models.AuthToken;
@@ -20,6 +21,7 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Scanner;
 
 import static chess.ChessGame.TeamColor.BLACK;
@@ -126,31 +128,43 @@ public class Client implements ServerMessageObserver {
             System.out.print("Input: ");
             Scanner scanner = new Scanner(System.in);
             String line = scanner.nextLine();
-            if (line.equals("QUIT")) {
-                System.exit(0);
-            } else if (line.equals("HELP")) {
-                helpPostLogin();
-                validInput = true;
-            } else if (line.equals("LOGOUT")) {
-                LogoutRequest logoutRequest = new LogoutRequest(authToken);
-                LogoutResult logoutResult = serverFacade.logout(logoutRequest);
-                if (logoutResult.getResponseCode() == 200) {
-                    System.out.print("Logged out.\n");
-                    return;
-                } else {
-                    errorMessage = logoutResult.getMessage() + "\n";
-                }
-            } else if (line.equals("LIST")) {
-                String listSuccess = populateGameArray(authToken);
-                if (listSuccess.equals("OK")) {
+            switch (line) {
+                case "QUIT" -> System.exit(0);
+                case "HELP" -> {
+                    helpPostLogin();
                     validInput = true;
-                    for (int i = 0; i < games.size(); i++) {
-                        System.out.print(i + 1 + " " + games.get(i).getGameName() + " White Player: " + games.get(i).getWhiteUsername()
-                                + " Black Player: " + games.get(i).getBlackUsername() + "\n");
+                }
+                case "LOGOUT" -> {
+                    LogoutRequest logoutRequest = new LogoutRequest(authToken);
+                    LogoutResult logoutResult = serverFacade.logout(logoutRequest);
+                    if (logoutResult.getResponseCode() == 200) {
+                        System.out.print("Logged out.\n");
+                        return;
+                    } else {
+                        errorMessage = logoutResult.getMessage() + "\n";
                     }
                 }
-                else {
-                    errorMessage = listSuccess + "\n";
+                case "LIST" -> {
+                    String listSuccess = populateGameArray(authToken);
+                    if (listSuccess.equals("OK")) {
+                        validInput = true;
+                        for (int i = 0; i < games.size(); i++) {
+                            System.out.print(i + 1 + " " + games.get(i).getGameName() + " White Player: " + games.get(i).getWhiteUsername()
+                                    + " Black Player: " + games.get(i).getBlackUsername() + "\n");
+                        }
+                        if (games.isEmpty()) {
+                            System.out.println("No games found.");
+                        }
+                    } else {
+                        errorMessage = listSuccess + "\n";
+                    }
+                }
+                case "CLEAR" -> {
+                    if (username.equals("david")) {
+                        serverFacade.clear();
+                        validInput = true;
+                        System.exit(0);
+                    }
                 }
             }
             String[] words = line.split(" ");
@@ -274,7 +288,6 @@ public class Client implements ServerMessageObserver {
         webSocketFacade.joinPlayer(authToken.getAuthToken(), gameID, color);
         System.out.print("Joined game as " + username + "\n");
         System.out.println("Type HELP to see options.");
-        label:
         while (true) {
             boolean validInput = false;
             String errorMessage = "Please try again.";
@@ -293,7 +306,7 @@ public class Client implements ServerMessageObserver {
                     validInput = true;
                     break;
                 case "REDRAW":
-                    drawBoard(gameIndexUniversal, playerColor);
+                    drawBoard(gameIndexUniversal, playerColor, null, null);
                     validInput = true;
                     break;
             }
@@ -302,8 +315,7 @@ public class Client implements ServerMessageObserver {
                 case "MAKE" -> {
                     if (words.length < 4) {
                         errorMessage = "Not enough parameters.";
-                    }
-                    else {
+                    } else {
                         if (words[1].equals("MOVE")) {
                             char[] pos1 = words[2].toCharArray();
                             char[] pos2 = words[3].toCharArray();
@@ -314,8 +326,7 @@ public class Client implements ServerMessageObserver {
                                 int ypos2 = ((int) pos2[1] - 48);
                                 if (xpos1 < 1 || ypos1 < 1 || xpos2 < 1 || ypos2 < 1 || xpos1 > 8 || ypos1 > 8 || xpos2 > 8 || ypos2 > 8) {
                                     errorMessage = "invalid positions.";
-                                }
-                                else {
+                                } else {
                                     ChessPositionImpl position1 = new ChessPositionImpl(ypos1, xpos1);
                                     ChessPositionImpl position2 = new ChessPositionImpl(ypos2, xpos2);
                                     ChessMoveImpl move = new ChessMoveImpl(position1, position2);
@@ -329,18 +340,16 @@ public class Client implements ServerMessageObserver {
                 case "HIGHLIGHT" -> {
                     if (words.length < 2) {
                         errorMessage = "Not enough parameters.";
-                    }
-                    else {
-                        char[] pos = words[2].toCharArray();
+                    } else {
+                        char[] pos = words[1].toCharArray();
                         if (pos.length == 2) {
                             int xpos = ((int) pos[0] - 96);
                             int ypos = ((int) pos[1] - 48);
                             if (xpos < 1 || ypos < 1 || xpos > 8 || ypos > 8) {
                                 errorMessage = "invalid position.";
-                            }
-                            else {
+                            } else {
                                 ChessPositionImpl position = new ChessPositionImpl(ypos, xpos);
-                                highlightMoves(gameID, position);
+                                highlightMoves(position);
                                 validInput = true;
                             }
                         }
@@ -357,9 +366,8 @@ public class Client implements ServerMessageObserver {
     private void observeGame(AuthToken authToken, String username, int gameID, int gameIndex) {
         gameIndexUniversal = gameIndex;
         webSocketFacade.joinObserver(authToken.getAuthToken(),gameID);
-        System.out.println("Observing Game " + gameIndexUniversal);
+        System.out.println("Observing Game " + gameIndexUniversal+1);
         System.out.println("Type HELP to see options.");
-        label:
         while (true) {
             boolean validInput = false;
             String errorMessage = "Please try again.";
@@ -374,7 +382,7 @@ public class Client implements ServerMessageObserver {
                     webSocketFacade.leave(authToken.getAuthToken(), gameID);
                     return;
                 case "REDRAW":
-                    drawBoard(gameIndexUniversal, playerColor);
+                    drawBoard(gameIndexUniversal, playerColor, null, null);
                     validInput = true;
                     break;
             }
@@ -384,7 +392,7 @@ public class Client implements ServerMessageObserver {
                     errorMessage = "Not enough parameters.";
                 }
                 else {
-                    char[] pos = words[2].toCharArray();
+                    char[] pos = words[1].toCharArray();
                     if (pos.length == 2) {
                         int xpos = ((int) pos[0] - 96);
                         int ypos = ((int) pos[1] - 48);
@@ -393,7 +401,7 @@ public class Client implements ServerMessageObserver {
                         }
                         else {
                             ChessPositionImpl position = new ChessPositionImpl(ypos, xpos);
-                            highlightMoves(gameID, position);
+                            highlightMoves(position);
                             validInput = true;
                         }
                     }
@@ -428,11 +436,16 @@ public class Client implements ServerMessageObserver {
         System.out.print("Input piece positions in standard chess notation. i.e. a5\n");
     }
 
-    private static void highlightMoves(int gameID, ChessPositionImpl position) {
-
+    private static void highlightMoves(ChessPositionImpl position) {
+        Collection<ChessMove> moves = games.get(gameIndexUniversal).getGame().validMoves(position);
+        boolean[][] highlights = new boolean[9][9];
+        for (ChessMove move: moves) {
+            highlights[move.getEndPosition().getRow()][move.getEndPosition().getColumn()] = true;
+        }
+        drawBoard(gameIndexUniversal, playerColor, position, highlights);
     }
 
-    private static void drawBoard(int gameIndex, TeamColor color) {
+    private static void drawBoard(int gameIndex, TeamColor color, ChessPositionImpl startPosition, boolean[][] highlights) {
         PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
         if (color == BLACK) {
@@ -440,7 +453,7 @@ public class Client implements ServerMessageObserver {
                 if (boardRow == 0 || boardRow == BOARD_SIZE_IN_SQUARES - 1) {
                     printOutlineRow(out, color);
                 } else {
-                    printBoardRow(out, color, boardRow, gameIndex);
+                    printBoardRow(out, color, boardRow, gameIndex, startPosition, highlights);
                 }
             }
         } else {
@@ -448,7 +461,7 @@ public class Client implements ServerMessageObserver {
                 if (boardRow == 0 || boardRow == BOARD_SIZE_IN_SQUARES - 1) {
                     printOutlineRow(out, color);
                 } else {
-                    printBoardRow(out, color, boardRow, gameIndex);
+                    printBoardRow(out, color, boardRow, gameIndex, startPosition, highlights);
                 }
             }
         }
@@ -467,7 +480,7 @@ public class Client implements ServerMessageObserver {
         out.println();
     }
 
-    private static void printBoardRow(PrintStream out, TeamColor color, int row, int gameIndex) {
+    private static void printBoardRow(PrintStream out, TeamColor color, int row, int gameIndex, ChessPositionImpl startPosition, boolean[][] highlights) {
         int whiteSquare = 0;
         int currColor = row % 2;
         if (color == TeamColor.BLACK) {
@@ -481,9 +494,25 @@ public class Client implements ServerMessageObserver {
                 } else {
                     if (currColor == whiteSquare) {
                         setWhiteSquare(out);
+                        if (startPosition != null) {
+                            if (highlights[row][currSquare]) {
+                                setWhiteHighlight(out);
+                            }
+                            if (startPosition.getRow() == row && startPosition.getColumn() == currSquare) {
+                                setStartPosHighlight(out);
+                            }
+                        }
                         printPiece(out, row, currSquare, gameIndex);
                     } else {
                         setBlackSquare(out);
+                        if (startPosition != null) {
+                            if (highlights[row][currSquare]) {
+                                setBlackHighlight(out);
+                            }
+                            if (startPosition.getRow() == row && startPosition.getColumn() == currSquare) {
+                                setStartPosHighlight(out);
+                            }
+                        }
                         printPiece(out, row, currSquare, gameIndex);
                     }
                     currColor = (currColor + 1) % 2;
@@ -497,9 +526,25 @@ public class Client implements ServerMessageObserver {
                 } else {
                     if (currColor == whiteSquare) {
                         setWhiteSquare(out);
+                        if (startPosition != null) {
+                            if (highlights[row][currSquare]) {
+                                setWhiteHighlight(out);
+                            }
+                            if (startPosition.getRow() == row && startPosition.getColumn() == currSquare) {
+                                setStartPosHighlight(out);
+                            }
+                        }
                         printPiece(out, row, currSquare, gameIndex);
                     } else {
                         setBlackSquare(out);
+                        if (startPosition != null) {
+                            if (highlights[row][currSquare]) {
+                                setBlackHighlight(out);
+                            }
+                            if (startPosition.getRow() == row && startPosition.getColumn() == currSquare) {
+                                setStartPosHighlight(out);
+                            }
+                        }
                         printPiece(out, row, currSquare, gameIndex);
                     }
                     currColor = (currColor + 1) % 2;
@@ -546,6 +591,18 @@ public class Client implements ServerMessageObserver {
         out.print(SET_BG_COLOR_BLACK);
     }
 
+    private static void setWhiteHighlight(PrintStream out) {
+        out.print(SET_BG_COLOR_GREEN);
+    }
+
+    private static void setBlackHighlight(PrintStream out) {
+        out.print(SET_BG_COLOR_DARK_GREEN);
+    }
+
+    private static void setStartPosHighlight(PrintStream out) {
+        out.print(SET_BG_COLOR_YELLOW);
+    }
+
     private static void setWhitePlayer(PrintStream out) {
         out.print(SET_TEXT_COLOR_RED);
     }
@@ -559,7 +616,7 @@ public class Client implements ServerMessageObserver {
         switch (message.getServerMessageType()) {
             case LOAD_GAME ->  {
                 games.set(gameIndexUniversal, message.getGame());
-                drawBoard(gameIndexUniversal, playerColor);
+                drawBoard(gameIndexUniversal, playerColor, null, null);
             }
             case ERROR -> System.out.println(message.getErrorMessage());
             case NOTIFICATION -> System.out.print(message.getMessage());
