@@ -193,9 +193,10 @@ public class WebSocketHandler {
                 game.setBlackUsername(null);
             }
             database.updateGame(gameID, game);
+            String notificationString = getUsername(authToken) + " has left the game.\n";
             connections.remove(authToken);
             try {
-                connections.broadcast(gameID, OTHER, authToken, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, getUsername(authToken) + " has left the game.\n"));
+                connections.broadcast(gameID, OTHER, authToken, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, notificationString));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
