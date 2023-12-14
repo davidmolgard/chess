@@ -2,7 +2,6 @@ import RequestResultClasses.createClasses.CreateRequest;
 import RequestResultClasses.createClasses.CreateResult;
 import RequestResultClasses.joinClasses.JoinRequest;
 import RequestResultClasses.joinClasses.JoinResult;
-import RequestResultClasses.listClasses.ListRequest;
 import RequestResultClasses.listClasses.ListResult;
 import RequestResultClasses.loginClasses.LoginRequest;
 import RequestResultClasses.loginClasses.LoginResult;
@@ -10,10 +9,9 @@ import RequestResultClasses.logoutClasses.LogoutRequest;
 import RequestResultClasses.logoutClasses.LogoutResult;
 import RequestResultClasses.registerClasses.RegisterRequest;
 import RequestResultClasses.registerClasses.RegisterResult;
-import chess.ChessGame;
 import chess.ChessGame.TeamColor;
+import chess.ChessMoveImpl;
 import chess.ChessPositionImpl;
-import com.mysql.cj.log.Log;
 import models.AuthToken;
 import models.Game;
 import webSocketMessages.serverMessages.ServerMessage;
@@ -28,7 +26,7 @@ import static chess.ChessGame.TeamColor.BLACK;
 import static chess.ChessGame.TeamColor.WHITE;
 import static ui.EscapeSequences.*;
 
-public class Repl implements ServerMessageObserver {
+public class Client implements ServerMessageObserver {
     private static final ServerFacade serverFacade = new ServerFacade();
     private static final ArrayList<Game> games = new ArrayList<>();
 
@@ -55,7 +53,7 @@ public class Repl implements ServerMessageObserver {
     private static int gameIndexUniversal;
     private static TeamColor playerColor = WHITE;
 
-    public Repl() {
+    public Client() {
     }
 
     public void preLogin() {
@@ -257,18 +255,73 @@ public class Repl implements ServerMessageObserver {
             switch (line) {
                 case "HELP":
                     helpPlayer();
+                    validInput = true;
                     break;
                 case "LEAVE":
                     webSocketFacade.leave(authToken.getAuthToken(), gameID);
-                    break label;
+                    return;
                 case "RESIGN":
                     webSocketFacade.resign(authToken.getAuthToken(), gameID);
+                    validInput = true;
                     break;
                 case "REDRAW":
                     drawBoard(gameIndexUniversal, playerColor);
+                    validInput = true;
                     break;
             }
-
+            String[] words = line.split(" ");
+            switch (words[0]) {
+                case "MAKE" -> {
+                    if (words.length < 4) {
+                        errorMessage = "Not enough parameters.";
+                    }
+                    else {
+                        if (words[1].equals("MOVE")) {
+                            char[] pos1 = words[2].toCharArray();
+                            char[] pos2 = words[3].toCharArray();
+                            if (pos1.length == 2 && pos2.length == 2) {
+                                int xpos1 = ((int) pos1[0] - 96);
+                                int ypos1 = ((int) pos1[1] - 48);
+                                int xpos2 = ((int) pos2[0] - 96);
+                                int ypos2 = ((int) pos2[1] - 48);
+                                if (xpos1 < 1 || ypos1 < 1 || xpos2 < 1 || ypos2 < 1 || xpos1 > 8 || ypos1 > 8 || xpos2 > 8 || ypos2 > 8) {
+                                    errorMessage = "invalid positions.";
+                                }
+                                else {
+                                    ChessPositionImpl position1 = new ChessPositionImpl(xpos1, ypos1);
+                                    ChessPositionImpl position2 = new ChessPositionImpl(xpos2, ypos2);
+                                    ChessMoveImpl move = new ChessMoveImpl(position1, position2);
+                                    webSocketFacade.makeMove(authToken.getAuthToken(), gameID, move);
+                                    validInput = true;
+                                }
+                            }
+                        }
+                    }
+                }
+                case "HIGHLIGHT" -> {
+                    if (words.length < 2) {
+                        errorMessage = "Not enough parameters.";
+                    }
+                    else {
+                        char[] pos = words[2].toCharArray();
+                        if (pos.length == 2) {
+                            int xpos = ((int) pos[0] - 96);
+                            int ypos = ((int) pos[1] - 48);
+                            if (xpos < 1 || ypos < 1 || xpos > 8 || ypos > 8) {
+                                errorMessage = "invalid positions.";
+                            }
+                            else {
+                                ChessPositionImpl position = new ChessPositionImpl(xpos, ypos);
+                                highlightMoves(gameID, position);
+                            }
+                        }
+                    }
+                }
+            }
+            if (!validInput) {
+                System.out.print("Invalid input. " + errorMessage + "\n");
+                System.out.print("Input HELP for a list of options.\n");
+            }
         }
     }
 
@@ -317,6 +370,10 @@ public class Repl implements ServerMessageObserver {
         System.out.print("REDRAW - redraws chess board\n");
         System.out.print("HIGHLIGHT <POSITION> - highlights all legal moves of piece at position\n");
         System.out.print("Input piece positions in standard chess notation. i.e. a5\n");
+    }
+
+    private static void highlightMoves(int gameID, ChessPositionImpl position) {
+
     }
 
     private static void drawBoard(int gameIndex, TeamColor color) {
