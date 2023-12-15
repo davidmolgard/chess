@@ -1,7 +1,5 @@
 package server;
 
-import RequestResultClasses.logoutClasses.LogoutRequest;
-import RequestResultClasses.logoutClasses.LogoutResult;
 import chess.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -9,10 +7,11 @@ import com.google.gson.JsonDeserializer;
 import dataAccess.Database;
 import models.AuthToken;
 import models.Game;
-import org.eclipse.jetty.websocket.api.annotations.*;
-import org.eclipse.jetty.websocket.api.*;
-import webSocketMessages.userCommands.*;
-import webSocketMessages.serverMessages.*;
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
+import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+import webSocketMessages.serverMessages.ServerMessage;
+import webSocketMessages.userCommands.UserGameCommand;
 
 import java.io.IOException;
 

@@ -5,7 +5,6 @@ import org.eclipse.jetty.websocket.api.Session;
 import webSocketMessages.serverMessages.ServerMessage;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 public class Connection {
     public String authToken;

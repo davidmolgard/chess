@@ -26,8 +26,8 @@ import static spark.Spark.webSocket;
 
 
 public class Server {
-    private DatabaseInterface database = new Database();
-    private Services services = new Services(database);
+    private final DatabaseInterface database = new Database();
+    private final Services services = new Services(database);
 
     public static void main(String[] args) {
         Server server = new Server();
@@ -183,7 +183,7 @@ public class Server {
         if (authToken != null && gameID > 0) {
             AuthToken token = new AuthToken();
             token.setAuthToken(authToken);
-            JoinRequest joinRequest = new JoinRequest(null, 0);
+            JoinRequest joinRequest;
             if (color != null && !color.isEmpty()) {
                 joinRequest = new JoinRequest(token, teamColor, ID);
             }

@@ -43,7 +43,6 @@ public class Client implements ServerMessageObserver {
     }
 
     private static final int BOARD_SIZE_IN_SQUARES = 10;
-    private static final int SQUARE_SIZE_IN_CHARS = 3;
     private static final String EMPTY = "   ";
     private static final String QUEEN = " Q ";
     private static final String KING = " K ";
@@ -241,7 +240,7 @@ public class Client implements ServerMessageObserver {
                             if (joinResult.getResponseCode() != 200) {
                                 errorMessage = joinResult.getMessage();
                             } else {
-                                observeGame(authToken, username, gameID, gameIndex);
+                                observeGame(authToken, gameID, gameIndex);
                                 validInput = true;
                             }
                         }
@@ -363,10 +362,10 @@ public class Client implements ServerMessageObserver {
         }
     }
 
-    private void observeGame(AuthToken authToken, String username, int gameID, int gameIndex) {
+    private void observeGame(AuthToken authToken, int gameID, int gameIndex) {
         gameIndexUniversal = gameIndex;
         webSocketFacade.joinObserver(authToken.getAuthToken(),gameID);
-        System.out.println("Observing Game " + gameIndexUniversal+1);
+        System.out.println("Observing game.");
         System.out.println("Type HELP to see options.");
         while (true) {
             boolean validInput = false;

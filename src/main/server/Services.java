@@ -29,7 +29,7 @@ public class Services {
     public final int Unauthorized = 401;
     public final int Forbidden = 403;
     public final int ServerError = 500;
-    DatabaseInterface database = new InternalDatabase();
+    DatabaseInterface database;
     public Services(DatabaseInterface database) {
         this.database = database;
     }
@@ -59,7 +59,7 @@ public class Services {
             GameDAO gameDAO = new GameDAO(database);
             Game game = new Game();
             game.setGameName(req.getGameName());
-            int gameID = 0;
+            int gameID;
             try {
                 gameID = gameDAO.insert(game);
             } catch (DataAccessException e) {
